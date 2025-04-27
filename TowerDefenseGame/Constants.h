@@ -7,3 +7,5 @@ enum TowerType {archer, mage, knight, king};
 enum ProjectileType { arrow, blast, fireball };
 enum SpellType { sacredLight, plague };
 enum Maps { map1, map2, map3 };
+
+static const int DESIRED_MUSIC_VOLUME = 10;

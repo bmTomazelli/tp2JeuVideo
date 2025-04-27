@@ -1,11 +1,22 @@
 #pragma once
+#include <SFML/Graphics.hpp>
+#include <SFML/Audio.hpp>
 
-class Waypoint
+using namespace sf;
+
+class Waypoint : public Sprite
 {
 public:
 	Waypoint();
 
-private:
+	void init(const Vector2f position);
 
+	void setNextWaypoint(Waypoint* next);
+
+	virtual void draw(RenderWindow& renderWindow) const;
+	const Waypoint* getNextWaypoint() const;
+
+protected:
+	Waypoint* nextWaypoint = nullptr;
 };
 

@@ -2,7 +2,8 @@
 #include "ContentPipeline.h"
 #include "SceneTitle.h"
 #include "SceneTransition.h"
-#include "SceneGame.h"
+#include "Level1.h"
+#include "Level2.h"
 #include "SceneEnd.h"
 
 
@@ -29,7 +30,7 @@ int Game::run()
 	if (!ContentPipeline::getInstance().loadContent()) return EXIT_FAILURE;
 
 	//Un enum et un pointeur de scene pour faire la manipulation de scène
-	Scene::scenes sceneSelector = Scene::scenes::LEVEL1;
+	Scene::scenes sceneSelector = Scene::scenes::LEVEL2;
 	Scene* activeScene = nullptr; //Pointeur de la super-classe, peut pointer sur n'importe quelle scène
 
 	//Les variables de passage d'information entre scènes devraient être déclarés ici
@@ -56,7 +57,10 @@ int Game::run()
 			break;
 		case Scene::scenes::LEVEL1:
 			//Les deux attributs sont récessaire et passés par référence
-			activeScene = new SceneGame(renderWindow, event);
+			activeScene = new Level1(renderWindow, event);
+			break;
+		case Scene::scenes::LEVEL2:
+			activeScene = new Level2(renderWindow, event);
 			break;
 		case Scene::scenes::END:
 			activeScene = new SceneEnd(renderWindow, event);

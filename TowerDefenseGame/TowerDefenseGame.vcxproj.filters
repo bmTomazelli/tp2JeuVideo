@@ -88,6 +88,12 @@
     <Filter Include="Fichiers sources\Scenes">
       <UniqueIdentifier>{471ed740-bfb0-4ff6-94fc-a831105d17a5}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Fichiers d%27en-tête\Scenes\Levels">
+      <UniqueIdentifier>{97ca7950-3b7a-4fb7-bbcd-34795c753e9a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Fichiers sources\Scenes\Levels">
+      <UniqueIdentifier>{7c2a351d-eedd-47ba-af4c-c733c958e4a8}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Main.cpp">
@@ -140,6 +146,15 @@
     </ClCompile>
     <ClCompile Include="SceneGame.cpp">
       <Filter>Fichiers sources\Scenes</Filter>
+    </ClCompile>
+    <ClCompile Include="Level1.cpp">
+      <Filter>Fichiers sources\Scenes\Levels</Filter>
+    </ClCompile>
+    <ClCompile Include="Level2.cpp">
+      <Filter>Fichiers sources\Scenes\Levels</Filter>
+    </ClCompile>
+    <ClCompile Include="TwoPathWaypoint.cpp">
+      <Filter>Fichiers sources\Utils</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -202,6 +217,15 @@
     </ClInclude>
     <ClInclude Include="SceneGame.h">
       <Filter>Fichiers d%27en-tête\Scenes</Filter>
+    </ClInclude>
+    <ClInclude Include="Level1.h">
+      <Filter>Fichiers d%27en-tête\Scenes\Levels</Filter>
+    </ClInclude>
+    <ClInclude Include="Level2.h">
+      <Filter>Fichiers d%27en-tête\Scenes\Levels</Filter>
+    </ClInclude>
+    <ClInclude Include="TwoPathWaypoint.h">
+      <Filter>Fichiers d%27en-tête\Utils</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

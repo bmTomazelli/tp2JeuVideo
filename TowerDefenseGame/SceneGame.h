@@ -2,6 +2,9 @@
 #include "Scene.h"
 #include "Hud.h"
 #include "Inputs.h"
+#include "Waypoint.h"
+#include "Constants.h"
+#include <iostream>
 
 /*
 Metrics de sceneGame OU du level 1 (à effacer à la fin)
@@ -36,15 +39,29 @@ public:
 	scenes run() override;
 	bool init() override;
 
-private:
+protected:
 	void getInputs() override;
 	void update() override;
 	void draw() override;
 	bool unload() override;
+
+	virtual void initWaypoints() = 0;
+	void manageWaypoints();
+
+	const String MUSIC_FILENAMES[3] = {
+		"Ressources\\Sounds\\Music\\Theme01.ogg",
+		"Ressources\\Sounds\\Music\\Theme02.ogg",
+		"Ressources\\Sounds\\Music\\Theme03.ogg"
+	};
 
 	View view;
 	Hud hud;
 	Inputs inputs;
 
 	Sprite map;
+
+	Music music;
+
+	std::vector<Waypoint*> waypoints;
+	bool showWaypoints = false;
 };
