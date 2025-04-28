@@ -16,20 +16,24 @@ Metrics de du level 2 (à effacer à la fin)
 class Level2 : public SceneGame
 {
 public:
-	Level2(RenderWindow& renderWindow, Event& event);
+	Level2(RenderWindow& renderWindow, Event& event, int currentWave);
 	bool init() override;
 private:
 	void initWaypoints() override;
 	void draw() override;
 	bool unload() override;
 
-	const Waypoint* assignPathToDemon() const;
+	Waypoint* getNextWaypointForDemon(Demon* demon) const override;
 
+	// Toutes les constantes relatives au niveau devraient être stockés dans le fichier du niveau plutôt que Constants.h
+	// Le fichier du niveau ne deviendra pas trop costaud à cause de ça car le meat du projet se fera de toute façon dans SceneGame.h
+
+	// Waypoints.h
 	static const int WAYPOINTS_AMOUNT_HIGH = 5;
 	static const int WAYPOINTS_AMOUNT_BOTTOM = 9;
 
-	static const int TOTAL_WAYPOINTS_AMOUNT = 14;
-	const Vector2f WAYPOINT_POSITIONS[TOTAL_WAYPOINTS_AMOUNT] = 
+	static const int LEVEL2_WAYPOINTS_AMOUNT = 14;
+	const Vector2f WAYPOINT_POSITIONS[LEVEL2_WAYPOINTS_AMOUNT] = 
 	{
 		Vector2f(88.f, 412.f),
 		Vector2f(168.f, 465.f),
@@ -46,5 +50,8 @@ private:
 		Vector2f(804.f, 650.f),
 		Vector2f(1140.f, 680.f),
 	};
+
+	// Démons
+	const Vector2f LEVEL2_DEMON_POSITION = Vector2f(-100.0f, 410.0f);
 };
 

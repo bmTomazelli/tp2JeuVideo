@@ -14,7 +14,7 @@ Game::Game()
 
 	//Synchonisation coordonnée à l'écran!  Normalement 60 frames par secondes. À faire absolument
 	//renderWindow.setVerticalSyncEnabled(true);  //De plus en plus d'écrans sont rafraichis à plus de 60 frames par seconde, alors attention.
-	renderWindow.setFramerateLimit(60);  //Équivalent... normalement, mais pas toujours. À utiliser si la synchonisation de l'écran fonctionne mal.
+	//renderWindow.setFramerateLimit(60);  //Équivalent... normalement, mais pas toujours. À utiliser si la synchonisation de l'écran fonctionne mal.
 	//https://www.sfml-dev.org/tutorials/2.6/window-window.php
 
 	renderWindow.setKeyRepeatEnabled(false);
@@ -34,6 +34,7 @@ int Game::run()
 	Scene* activeScene = nullptr; //Pointeur de la super-classe, peut pointer sur n'importe quelle scène
 
 	//Les variables de passage d'information entre scènes devraient être déclarés ici
+	int currentWave = 1;
 
 	while (true)
 	{
@@ -41,7 +42,6 @@ int Game::run()
 		//On est au seul point de sortie
 		if (sceneSelector == Scene::scenes::EXIT) return EXIT_SUCCESS;
 		if (sceneSelector == Scene::scenes::FAIL) return EXIT_FAILURE;
-		
 
 		//Vous allez ajouter d'autre scènes, alors elles devront
 		//être ajoutées ici
@@ -57,10 +57,10 @@ int Game::run()
 			break;
 		case Scene::scenes::LEVEL1:
 			//Les deux attributs sont récessaire et passés par référence
-			activeScene = new Level1(renderWindow, event);
+			activeScene = new Level1(renderWindow, event, currentWave);
 			break;
 		case Scene::scenes::LEVEL2:
-			activeScene = new Level2(renderWindow, event);
+			activeScene = new Level2(renderWindow, event, currentWave);
 			break;
 		case Scene::scenes::END:
 			activeScene = new SceneEnd(renderWindow, event);

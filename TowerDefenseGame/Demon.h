@@ -1,4 +1,8 @@
 #pragma once
+#include "GameObject.h"
+#include "Waypoint.h"
+#include "IObserver.h"
+#include "Subject.h"
 
 /*
 Metrics du Demon (à effacer à la fin)
@@ -13,11 +17,54 @@ Metrics du Demon (à effacer à la fin)
 - Position de départ des démons au niveau 2: -100, 410
 */
 
-class Demon
+class Demon : public GameObject, public IObserver, public Subject
 {
 public:
 	Demon();
+	~Demon();
+
+	void init(const int wave);
+	void update(const float deltaTime);
+
+	void assignWaypointToFollow(Waypoint* waypoint);
+	void spawnDemon(const Vector2f position);
+
+	bool isDying() const;
+	Waypoint* getWaypointToFollow() const;
 
 private:
+	void checkStatus();
+	void manageMovement(const float deltaTime);
+	void checkCollisionWithWaypoint();
+	void manageAnimation(const float deltaTime);
+	void runAnimation(const float deltaTime, const float timePerFrame, const int imageNumber, const bool linear, IntRect* images);
+	void notify(Subject* subject) override;
+
+	enum DemonState { FLYING, DYING };
+	void setDemonState(DemonState animationState);
+
+	const int RECTANGLE_WIDTH = 100;
+	const int RECTANGLE_HEIGHT = 25;
+	const int ANIM_DEMON = 5;
+
+	const int MAX_DEMON_HEALTH = 60;
+	const int DEFAULT_DEMON_SPEED = 54.0f;
+	const int SPEED_WAVE_MULTIPLIER = 6.0f;
+
+	IntRect* imagesFlying;
+	IntRect* imagesDying;
+
+	DemonState demonState;
+	float timeCounter = 0.0f;
+	int currentImage = 0;
+	const float TIME_PER_FRAME = 0.1;
+
+	Waypoint* waypointToFollow;
+	int health = MAX_DEMON_HEALTH;
+	float speed = 0;
+	int wave = 0;
+	float moveAngle;
+
+	Sound attackSound;
 };
 

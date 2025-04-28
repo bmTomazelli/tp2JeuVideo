@@ -1,12 +1,15 @@
 #include "Level2.h"
 #include "ContentPipeline.h"
 
-Level2::Level2(RenderWindow& renderWindow, Event& event) : SceneGame::SceneGame(renderWindow, event)
+Level2::Level2(RenderWindow& renderWindow, Event& event, int currentWave) : SceneGame::SceneGame(renderWindow, event, currentWave)
 {
 }
 
 bool Level2::init()
 {
+	waypointsAmount = LEVEL2_WAYPOINTS_AMOUNT;
+	demonDefaultPosition = LEVEL2_DEMON_POSITION;
+
 	if (!SceneGame::init()) return false;
 	map.setTexture(ContentPipeline::getInstance().getMapTexture(map2));
 
@@ -16,7 +19,7 @@ bool Level2::init()
 void Level2::initWaypoints()
 {
 	// Initialisation de chaque waypoints
-	for (int i = 0; i < TOTAL_WAYPOINTS_AMOUNT; i++)
+	for (int i = 0; i < waypointsAmount; i++)
 	{
 		// Au sixième waypoints (index 5 du tableau de positions), la double sortie est initialisé 
 		if (i == 5)
@@ -42,14 +45,14 @@ void Level2::initWaypoints()
 	waypoints[5]->setNextWaypoint(waypoints[6]);
 	static_cast<TwoPathWaypoint*>(waypoints[5])->setOtherWaypoint(waypoints[11]); // Cast en TwoPathWaypoint pour utiliser la méthode setOtherWaypoint
 
-	// Routage du haut
+	// Routage du haut (Position 6 à 10 dans le tableau waypoints)
 	for (int i = 6; i < 10; i++)
 	{
 		waypoints[i]->setNextWaypoint(waypoints[i + 1]);
 	}
 
-	// Routage du bas
-	for (int i = 11; i < TOTAL_WAYPOINTS_AMOUNT - 1; i++)
+	// Routage du bas (Position 11 à 14 dans le tableau waypoints)
+	for (int i = 11; i < LEVEL2_WAYPOINTS_AMOUNT - 1; i++)
 	{
 		waypoints[i]->setNextWaypoint(waypoints[i + 1]);
 	}
@@ -57,39 +60,32 @@ void Level2::initWaypoints()
 
 void Level2::draw()
 {
+	// Au cas où le niveau aurait ces propres élément à dessiner, c'est celui-ci qui s'occupera de nettoyer et d'afficher la fenêtre.
 	renderWindow.clear();
 	SceneGame::draw();
-
-	if (showWaypoints)
-	{
-		for (int i = 0; i < TOTAL_WAYPOINTS_AMOUNT; i++)
-		{
-			waypoints[i]->draw(renderWindow);
-		}
-	}
-
 	renderWindow.display();
 }
 
 bool Level2::unload()
 {
-	for (int i = 0; i < TOTAL_WAYPOINTS_AMOUNT; i++)
-	{
-		delete waypoints[i];
-	}
-	waypoints.clear();
+	SceneGame::unload();
 	return true;
 }
 
-const Waypoint* Level2::assignPathToDemon() const
+Waypoint* Level2::getNextWaypointForDemon(Demon* demon) const
 {
-	int random = rand() % 2;
-	if (random == 0)
+	Waypoint* currentWaypoint = demon->getWaypointToFollow();
+
+	if (typeid(*currentWaypoint) == typeid(TwoPathWaypoint))
 	{
-		return waypoints[6];
+		TwoPathWaypoint* twoPathWaypoint = static_cast<TwoPathWaypoint*>(currentWaypoint);
+
+		int random = rand() % 2;
+		if (random == 0)
+			return twoPathWaypoint->getNextWaypoint();
+		else
+			return twoPathWaypoint->getOtherWaypoint();
 	}
-	else
-	{
-		return waypoints[11];
-	}
+
+	return SceneGame::getNextWaypointForDemon(demon);
 }

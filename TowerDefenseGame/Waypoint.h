@@ -1,7 +1,6 @@
 #pragma once
 #include <SFML/Graphics.hpp>
 #include <SFML/Audio.hpp>
-
 using namespace sf;
 
 class Waypoint : public Sprite
@@ -14,7 +13,7 @@ public:
 	void setNextWaypoint(Waypoint* next);
 
 	virtual void draw(RenderWindow& renderWindow) const;
-	const Waypoint* getNextWaypoint() const;
+	Waypoint* getNextWaypoint() const;
 
 protected:
 	Waypoint* nextWaypoint = nullptr;

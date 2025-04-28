@@ -1,11 +1,14 @@
 #include "Waypoint.h"
 #include "ContentPipeline.h"
+#include "Subject.h"
+#include "Demon.h"
+
 
 Waypoint::Waypoint()
 {
 }
 
-const Waypoint* Waypoint::getNextWaypoint() const
+Waypoint* Waypoint::getNextWaypoint() const
 {
 	return nextWaypoint;
 }

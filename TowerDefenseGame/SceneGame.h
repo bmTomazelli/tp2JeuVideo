@@ -4,6 +4,7 @@
 #include "Inputs.h"
 #include "Waypoint.h"
 #include "Constants.h"
+#include "Demon.h"
 #include <iostream>
 
 /*
@@ -32,10 +33,10 @@ Metrics de du level 2 (à effacer à la fin)
 - Le reste est identique à la scène 1
 */
 
-class SceneGame : public Scene
+class SceneGame : public Scene, public IObserver
 {
 public:
-	SceneGame(RenderWindow& renderWindow, Event& event);
+	SceneGame(RenderWindow& renderWindow, Event& event, int currentWave);
 	scenes run() override;
 	bool init() override;
 
@@ -47,6 +48,11 @@ protected:
 
 	virtual void initWaypoints() = 0;
 	void manageWaypoints();
+	void manageDemonsSpawning();
+
+	virtual Waypoint* getNextWaypointForDemon(Demon* demon) const;
+
+	void notify(Subject* subject) override;
 
 	const String MUSIC_FILENAMES[3] = {
 		"Ressources\\Sounds\\Music\\Theme01.ogg",
@@ -54,14 +60,30 @@ protected:
 		"Ressources\\Sounds\\Music\\Theme03.ogg"
 	};
 
+	// Demons
+	static const int MAX_DEMONS_AMOUNT = 50;
+	static const int MAX_DEMONS_ON_SCREEN = 20;
+	int demonsAmount = 0;
+
 	View view;
 	Hud hud;
 	Inputs inputs;
 
 	Sprite map;
-
 	Music music;
 
+	// Valeurs à modifier dans les différents niveaux
+	int waypointsAmount;
+	Vector2f demonDefaultPosition;
+
+	// Waypoints
 	std::vector<Waypoint*> waypoints;
 	bool showWaypoints = false;
+
+	Demon demons[MAX_DEMONS_ON_SCREEN];
+	float demonSpawningTimer = 0.0f;
+	float nextDemonSpawnTime = 0.0f;
+
+	// Vagues
+	int currentWave;
 };

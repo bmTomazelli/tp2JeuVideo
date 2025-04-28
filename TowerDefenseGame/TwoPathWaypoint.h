@@ -7,6 +7,7 @@ public:
 	TwoPathWaypoint();
 	
 	void setOtherWaypoint(Waypoint* other);
+	Waypoint* getOtherWaypoint() const;
 
 private:
 	Waypoint* otherWaypoint = nullptr;
