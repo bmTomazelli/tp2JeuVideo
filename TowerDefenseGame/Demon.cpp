@@ -113,6 +113,14 @@ void Demon::manageMovement(const float deltaTime)
 		setScale(-1, 1); // Vise vers la gauche
 	}
 
+	// Rotation continue 
+	//angle++;
+	//setRotation(angle);
+	//if (angle > 360)
+	//{
+	//	angle = 0;
+	//}
+
 	checkCollisionWithWaypoint();
 }
 

@@ -1,10 +1,12 @@
 #include "SceneGame.h"
 #include "ContentPipeline.h"
 
-SceneGame::SceneGame(RenderWindow& renderWindow, Event& event, int currentWave) : Scene(renderWindow, event)
+SceneGame::SceneGame(RenderWindow& renderWindow, Event& event, int currentWave, int score, int highScore) : Scene(renderWindow, event)
 {
 	view = renderWindow.getDefaultView();
 	this->currentWave = currentWave;
+	this->score = score;
+	this->highScore = highScore;
 }
 
 Scene::scenes SceneGame::run()
@@ -34,7 +36,7 @@ bool SceneGame::init()
 		demons[i].assignWaypointToFollow(waypoints[0]);
 	}
 
-	hud.hudInit(ContentPipeline::getInstance().getHudmaskTexture(), ContentPipeline::getInstance().getComiciFont());
+	hud.hudInit(ContentPipeline::getInstance().getHudmaskTexture(), ContentPipeline::getInstance().getComiciFont(), currentWave);
 
 	Subject::addObserver(this);
 
@@ -57,6 +59,10 @@ void SceneGame::getInputs()
 		{
 			if (event.key.code == Keyboard::W)
 				inputs.toggleWaypoints = true;
+			if (event.key.code == Keyboard::Enter)
+			{
+
+			}
 		}
 	}
 
@@ -72,12 +78,17 @@ void SceneGame::getInputs()
 
 void SceneGame::update()
 {
+	if (isKingDead) return;
+
 	manageWaypoints();
 
 	for (int i = 0; i < MAX_DEMONS_ON_SCREEN; i++)
 		demons[i].update(deltaTime);
+	
+	hud.updateHud(mana, kills, score, highScore);
 
 	manageDemonsSpawning();
+	manageGameOver();
 }
 
 void SceneGame::draw()
@@ -111,6 +122,9 @@ bool SceneGame::unload()
 		delete waypoints[i];
 	}
 	waypoints.clear();
+
+	//Important: n’oubliez pas d’enlever tous les observateurs en fin de scène (unload) sinon vous aurez des crashs à travailler sur des observateurs désormais absents en mémoire.
+	Subject::removeAllObservers();
 	return true;
 }
 
@@ -148,6 +162,19 @@ void SceneGame::manageDemonsSpawning()
 
 		// Algorithme de génération aléatoire de secondes proposé par ChatGPT
 		nextDemonSpawnTime = 1.0f + static_cast<float>(rand()) / (static_cast<float>(RAND_MAX) / 2.0f);
+	}
+}
+
+void SceneGame::manageGameOver()
+{
+	if (kills == MAX_DEMONS_AMOUNT)
+	{
+		hud.changeToEndGameHud(true);
+	}
+
+	if (isKingDead)
+	{
+		hud.changeToEndGameHud(false);
 	}
 }
 

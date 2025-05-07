@@ -21,4 +21,6 @@ private:
 	Sprite titleScreen;
 	Text instructions;
 	Music themeSong;
+
+	bool exitTitle = false;
 };

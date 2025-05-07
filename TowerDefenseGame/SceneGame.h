@@ -36,7 +36,7 @@ Metrics de du level 2 (à effacer à la fin)
 class SceneGame : public Scene, public IObserver
 {
 public:
-	SceneGame(RenderWindow& renderWindow, Event& event, int currentWave);
+	SceneGame(RenderWindow& renderWindow, Event& event, int currentWave, int score, int highScore);
 	scenes run() override;
 	bool init() override;
 
@@ -49,6 +49,7 @@ protected:
 	virtual void initWaypoints() = 0;
 	void manageWaypoints();
 	void manageDemonsSpawning();
+	void manageGameOver();
 
 	virtual Waypoint* getNextWaypointForDemon(Demon* demon) const;
 
@@ -86,4 +87,13 @@ protected:
 
 	// Vagues
 	int currentWave;
+
+	// Informations du jeu
+	int mana = 0;
+	int kills = 0;
+	int score;
+	int highScore;
+
+	bool isKingDead = false;
+
 };

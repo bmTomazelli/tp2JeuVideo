@@ -64,6 +64,7 @@ private:
 	float speed = 0;
 	int wave = 0;
 	float moveAngle;
+	float angle = 0;
 
 	Sound attackSound;
 };

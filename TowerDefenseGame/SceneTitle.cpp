@@ -48,11 +48,22 @@ void SceneTitle::getInputs()
 	{
 		//x sur la fenêtre
 		if (event.type == Event::Closed) exitGame();
+
+		if (event.type == Event::KeyPressed)
+		{
+			if (event.key.code == Keyboard::Enter)
+				exitTitle = true;
+		}
 	}
 }
 
 void SceneTitle::update()
 {
+	if (exitTitle)
+	{
+		transitionToScene = Scene::scenes::TRANSITION;
+		isRunning = false;
+	}
 }
 
 void SceneTitle::draw()
