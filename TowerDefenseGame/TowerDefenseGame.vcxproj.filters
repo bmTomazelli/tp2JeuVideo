@@ -82,11 +82,23 @@
     <Filter Include="Fichiers d%27en-tête\ContentPipeline">
       <UniqueIdentifier>{0b6e96fb-3e88-480f-b2d8-bf370e374272}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Fichiers sources\ContentPipeline">
-      <UniqueIdentifier>{da40bf4f-f6d1-44a9-9b2f-1972b3593dab}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Fichiers sources\Scenes">
       <UniqueIdentifier>{471ed740-bfb0-4ff6-94fc-a831105d17a5}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Fichiers d%27en-tête\Scenes\Levels">
+      <UniqueIdentifier>{97ca7950-3b7a-4fb7-bbcd-34795c753e9a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Fichiers sources\Scenes\Levels">
+      <UniqueIdentifier>{7c2a351d-eedd-47ba-af4c-c733c958e4a8}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Fichiers d%27en-tête\Actors\Towers">
+      <UniqueIdentifier>{12c0e5be-0bb9-4d64-b0bc-c4df5914eb51}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Fichiers sources\Actors\Towers">
+      <UniqueIdentifier>{d9e2e138-ca31-483e-a451-786544049a94}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Fichiers sources\Actors\ContentPipeline">
+      <UniqueIdentifier>{da40bf4f-f6d1-44a9-9b2f-1972b3593dab}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -103,15 +115,9 @@
       <Filter>Fichiers sources\GameObject</Filter>
     </ClCompile>
     <ClCompile Include="ContentPipeline.cpp">
-      <Filter>Fichiers sources\ContentPipeline</Filter>
-    </ClCompile>
-    <ClCompile Include="Tower.cpp">
-      <Filter>Fichiers sources\Actors</Filter>
+      <Filter>Fichiers sources\Actors\ContentPipeline</Filter>
     </ClCompile>
     <ClCompile Include="Demon.cpp">
-      <Filter>Fichiers sources\Actors</Filter>
-    </ClCompile>
-    <ClCompile Include="TowerEmplacement.cpp">
       <Filter>Fichiers sources\Actors</Filter>
     </ClCompile>
     <ClCompile Include="Projectile.cpp">
@@ -141,6 +147,30 @@
     <ClCompile Include="SceneGame.cpp">
       <Filter>Fichiers sources\Scenes</Filter>
     </ClCompile>
+    <ClCompile Include="Level1.cpp">
+      <Filter>Fichiers sources\Scenes\Levels</Filter>
+    </ClCompile>
+    <ClCompile Include="Level2.cpp">
+      <Filter>Fichiers sources\Scenes\Levels</Filter>
+    </ClCompile>
+    <ClCompile Include="TwoPathWaypoint.cpp">
+      <Filter>Fichiers sources\Utils</Filter>
+    </ClCompile>
+    <ClCompile Include="Tower.cpp">
+      <Filter>Fichiers sources\Actors\Towers</Filter>
+    </ClCompile>
+    <ClCompile Include="ArcherTower.cpp">
+      <Filter>Fichiers sources\Actors\Towers</Filter>
+    </ClCompile>
+    <ClCompile Include="MageTower.cpp">
+      <Filter>Fichiers sources\Actors\Towers</Filter>
+    </ClCompile>
+    <ClCompile Include="KingTower.cpp">
+      <Filter>Fichiers sources\Actors\Towers</Filter>
+    </ClCompile>
+    <ClCompile Include="TowerEmplacement.cpp">
+      <Filter>Fichiers sources\Actors\Towers</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Game.h">
@@ -158,13 +188,7 @@
     <ClInclude Include="ContentPipeline.h">
       <Filter>Fichiers d%27en-tête\ContentPipeline</Filter>
     </ClInclude>
-    <ClInclude Include="Tower.h">
-      <Filter>Fichiers d%27en-tête\Actors</Filter>
-    </ClInclude>
     <ClInclude Include="Demon.h">
-      <Filter>Fichiers d%27en-tête\Actors</Filter>
-    </ClInclude>
-    <ClInclude Include="TowerEmplacement.h">
       <Filter>Fichiers d%27en-tête\Actors</Filter>
     </ClInclude>
     <ClInclude Include="Projectile.h">
@@ -202,6 +226,33 @@
     </ClInclude>
     <ClInclude Include="SceneGame.h">
       <Filter>Fichiers d%27en-tête\Scenes</Filter>
+    </ClInclude>
+    <ClInclude Include="Level1.h">
+      <Filter>Fichiers d%27en-tête\Scenes\Levels</Filter>
+    </ClInclude>
+    <ClInclude Include="Level2.h">
+      <Filter>Fichiers d%27en-tête\Scenes\Levels</Filter>
+    </ClInclude>
+    <ClInclude Include="TwoPathWaypoint.h">
+      <Filter>Fichiers d%27en-tête\Utils</Filter>
+    </ClInclude>
+    <ClInclude Include="Tower.h">
+      <Filter>Fichiers d%27en-tête\Actors\Towers</Filter>
+    </ClInclude>
+    <ClInclude Include="ArcherTower.h">
+      <Filter>Fichiers d%27en-tête\Actors\Towers</Filter>
+    </ClInclude>
+    <ClInclude Include="resource.h">
+      <Filter>Fichiers d%27en-tête</Filter>
+    </ClInclude>
+    <ClInclude Include="MageTower.h">
+      <Filter>Fichiers d%27en-tête\Actors\Towers</Filter>
+    </ClInclude>
+    <ClInclude Include="KingTower.h">
+      <Filter>Fichiers d%27en-tête\Actors\Towers</Filter>
+    </ClInclude>
+    <ClInclude Include="TowerEmplacement.h">
+      <Filter>Fichiers d%27en-tête\Actors\Towers</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -323,5 +374,10 @@
     <None Include="Ressources\Sounds\Music\VictoryTheme.ogg">
       <Filter>Fichiers de ressources\Sounds\Music</Filter>
     </None>
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="TowerDefenseGame.rc">
+      <Filter>Fichiers de ressources</Filter>
+    </ResourceCompile>
   </ItemGroup>
 </Project>

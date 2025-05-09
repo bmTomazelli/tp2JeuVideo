@@ -19,19 +19,26 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="ArcherTower.h" />
     <ClInclude Include="CollisionCircle.h" />
     <ClInclude Include="Constants.h" />
     <ClInclude Include="Demon.h" />
     <ClInclude Include="Game.h" />
     <ClInclude Include="ContentPipeline.h" />
     <ClInclude Include="GameObject.h" />
+    <ClInclude Include="KingTower.h" />
+    <ClInclude Include="MageTower.h" />
+    <ClInclude Include="resource.h" />
+    <ClInclude Include="TwoPathWaypoint.h" />
     <ClInclude Include="Hud.h" />
     <ClInclude Include="Inputs.h" />
     <ClInclude Include="IObserver.h" />
+    <ClInclude Include="Level2.h" />
     <ClInclude Include="Projectile.h" />
     <ClInclude Include="Scene.h" />
     <ClInclude Include="SceneEnd.h" />
     <ClInclude Include="SceneGame.h" />
+    <ClInclude Include="Level1.h" />
     <ClInclude Include="SceneTitle.h" />
     <ClInclude Include="SceneTransition.h" />
     <ClInclude Include="Spell.h" />
@@ -41,22 +48,28 @@
     <ClInclude Include="Waypoint.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="ArcherTower.cpp" />
     <ClCompile Include="CollisionCircle.cpp" />
     <ClCompile Include="Demon.cpp" />
     <ClCompile Include="Game.cpp" />
     <ClCompile Include="ContentPipeline.cpp" />
     <ClCompile Include="GameObject.cpp" />
     <ClCompile Include="Hud.cpp" />
+    <ClCompile Include="KingTower.cpp" />
+    <ClCompile Include="Level2.cpp" />
+    <ClCompile Include="MageTower.cpp" />
     <ClCompile Include="Main.cpp" />
     <ClCompile Include="Projectile.cpp" />
     <ClCompile Include="SceneEnd.cpp" />
     <ClCompile Include="SceneGame.cpp" />
+    <ClCompile Include="Level1.cpp" />
     <ClCompile Include="SceneTitle.cpp" />
     <ClCompile Include="SceneTransition.cpp" />
     <ClCompile Include="Spell.cpp" />
     <ClCompile Include="Subject.cpp" />
     <ClCompile Include="Tower.cpp" />
     <ClCompile Include="TowerEmplacement.cpp" />
+    <ClCompile Include="TwoPathWaypoint.cpp" />
     <ClCompile Include="Waypoint.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -102,6 +115,9 @@
   </ItemGroup>
   <ItemGroup>
     <Font Include="Ressources\Font\comici.ttf" />
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="TowerDefenseGame.rc" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{e2963ebd-9bdc-49c7-99d0-7ad73d395f43}</ProjectGuid>
