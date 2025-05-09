@@ -19,7 +19,7 @@ Metrics de sceneGame OU du level 1 (à effacer à la fin)
 class Level1 : public SceneGame
 {
 public:
-	Level1(RenderWindow& renderWindow, Event& event, int currentWave);
+	Level1(RenderWindow& renderWindow, Event& event, int currentWave, int score, int highScore);
 	bool init() override;
 private:
 	void initWaypoints() override;

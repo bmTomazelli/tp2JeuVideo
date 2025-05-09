@@ -2,7 +2,7 @@
 #include "ContentPipeline.h"
 #include "Subject.h"
 
-Level1::Level1(RenderWindow& renderWindow, Event& event, int currentWave) : SceneGame::SceneGame(renderWindow, event, currentWave)
+Level1::Level1(RenderWindow& renderWindow, Event& event, int currentWave, int score, int highScore) : SceneGame::SceneGame(renderWindow, event, currentWave, score, highScore)
 {
 }
 

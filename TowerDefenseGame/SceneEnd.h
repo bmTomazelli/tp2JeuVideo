@@ -6,7 +6,7 @@ using namespace sf;
 class SceneEnd : public Scene
 {
 public:
-	SceneEnd(RenderWindow& renderWindow, Event& event);
+	SceneEnd(RenderWindow& renderWindow, Event& event, int score, int highScore, int waveAmount);
 	scenes run() override;
 	bool init() override;
 
@@ -24,4 +24,11 @@ private:
 	Music themeSong;
 
 	bool isVictory = true;
+
+	bool exit = false;
+	bool returnToTitle = false;
+
+	int score;
+	int highScore;
+	int waveAmount;
 };

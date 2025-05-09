@@ -16,7 +16,7 @@ Metrics de du level 2 (à effacer à la fin)
 class Level2 : public SceneGame
 {
 public:
-	Level2(RenderWindow& renderWindow, Event& event, int currentWave);
+	Level2(RenderWindow& renderWindow, Event& event, int currentWave, int score, int highScore);
 	bool init() override;
 private:
 	void initWaypoints() override;

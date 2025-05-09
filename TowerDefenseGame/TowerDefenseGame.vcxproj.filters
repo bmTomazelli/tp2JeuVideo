@@ -170,6 +170,8 @@
     </ClCompile>
     <ClCompile Include="TowerEmplacement.cpp">
       <Filter>Fichiers sources\Actors\Towers</Filter>
+    <ClCompile Include="HealthGauge.cpp">
+      <Filter>Fichiers sources\Utils</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -253,6 +255,8 @@
     </ClInclude>
     <ClInclude Include="TowerEmplacement.h">
       <Filter>Fichiers d%27en-tête\Actors\Towers</Filter>
+    <ClInclude Include="HealthGauge.h">
+      <Filter>Fichiers d%27en-tête\Utils</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
