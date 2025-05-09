@@ -5,7 +5,12 @@
 #include "Waypoint.h"
 #include "Constants.h"
 #include "Demon.h"
+#include "TowerEmplacement.h"
+#include "ArcherTower.h"
+#include "MageTower.h"
+#include "KingTower.h"
 #include <iostream>
+#include <list>
 
 /*
 Metrics de sceneGame OU du level 1 (à effacer à la fin)
@@ -75,6 +80,7 @@ protected:
 	// Valeurs à modifier dans les différents niveaux
 	int waypointsAmount;
 	Vector2f demonDefaultPosition;
+	int towerEmplacementAmount;
 
 	// Waypoints
 	std::vector<Waypoint*> waypoints;
@@ -86,4 +92,16 @@ protected:
 
 	// Vagues
 	int currentWave;
+
+	// Emplacements de tour
+    std::vector<TowerEmplacement*> listTowerEmplacements;
+    TowerEmplacement* selectedEmplacement = nullptr;
+
+    //tours
+    static const int MAX_ARCHER_TOWERS = 10;
+    static const int MAX_MAGE_TOWERS = 10;
+
+    ArcherTower archerTowers[MAX_ARCHER_TOWERS];
+    MageTower mageTowers[MAX_MAGE_TOWERS];
+    KingTower kingTower;
 };

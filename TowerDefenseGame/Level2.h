@@ -53,5 +53,21 @@ private:
 
 	// Démons
 	const Vector2f LEVEL2_DEMON_POSITION = Vector2f(-100.0f, 410.0f);
+
+	// Tower emplacement
+	const Vector2f TOWER_POSITIONS[9] =
+	{
+		Vector2f(110.f, 620.f),
+		Vector2f(228.f, 320.f),
+		Vector2f(444.f, 780.f),
+		Vector2f(362.f, 530.f),
+		Vector2f(610.f, 222.f),
+		Vector2f(998.f, 270.f),
+		Vector2f(630.f, 460.f),
+		Vector2f(935.f, 520.f),
+		Vector2f(798.f, 760.f)
+	};
+
+	const int MAX_NUMBER_OF_TOWERS = 9;
 };
 

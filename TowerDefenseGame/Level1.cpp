@@ -10,10 +10,17 @@ bool Level1::init()
 {
 	waypointsAmount = LEVEL1_WAYPOINTS_AMOUNT;
 	demonDefaultPosition = LEVEL1_DEMON_POSITION;
+	towerEmplacementAmount = LEVEL_1_MAX_NUMBER_OF_TOWERS;
 
 	if (!SceneGame::init()) return false;
 	
 	map.setTexture(ContentPipeline::getInstance().getMapTexture(map1));
+
+    initTowersEmplacements();
+    kingTower.init();
+    kingTower.spawn(Vector2f(1138, 600));
+
+    Subject::addObserver(&kingTower);
 
 	return true;
 }
@@ -30,6 +37,16 @@ void Level1::initWaypoints()
 	for (int i = 0; i < LEVEL1_WAYPOINTS_AMOUNT - 1; i++)
 	{
 		waypoints[i]->setNextWaypoint(waypoints[i + 1]);
+	}
+}
+
+void Level1::initTowersEmplacements()
+{
+	for (int i = 0; i < towerEmplacementAmount; ++i)
+	{
+		TowerEmplacement* towerEmplacement = new TowerEmplacement();
+		towerEmplacement->init(TOWER_POSITIONS[i]);
+		listTowerEmplacements.push_back(towerEmplacement);
 	}
 }
 
