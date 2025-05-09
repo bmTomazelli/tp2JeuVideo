@@ -13,6 +13,10 @@ bool Level2::init()
 	if (!SceneGame::init()) return false;
 	map.setTexture(ContentPipeline::getInstance().getMapTexture(map2));
 
+    kingTower.setPosition(Vector2f(1138, 564));
+    kingTower.activate();
+    Subject::addObserver(&kingTower);
+
 	return true;
 }
 

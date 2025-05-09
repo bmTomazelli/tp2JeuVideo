@@ -9,18 +9,18 @@
 
 Game::Game()
 {
-	//On place dans le contructeur ce qui permet à la game elle-même de fonctionner
+	//On place dans le contructeur ce qui permet Ã  la game elle-mÃªme de fonctionner
 	renderWindow.create(VideoMode(SCREEN_WIDTH, SCREEN_HEIGHT, 32), "Tower Defense Game");  // , Style::Titlebar); / , Style::FullScreen);
 
-	//Synchonisation coordonnée à l'écran!  Normalement 60 frames par secondes. À faire absolument
-	//renderWindow.setVerticalSyncEnabled(true);  //De plus en plus d'écrans sont rafraichis à plus de 60 frames par seconde, alors attention.
-	//renderWindow.setFramerateLimit(60);  //Équivalent... normalement, mais pas toujours. À utiliser si la synchonisation de l'écran fonctionne mal.
+	//Synchonisation coordonnÃ©e Ã  l'Ã©cran!  Normalement 60 frames par secondes. Ã€ faire absolument
+	//renderWindow.setVerticalSyncEnabled(true);  //De plus en plus d'Ã©crans sont rafraichis Ã  plus de 60 frames par seconde, alors attention.
+	//renderWindow.setFramerateLimit(60);  //Ã‰quivalent... normalement, mais pas toujours. Ã€ utiliser si la synchonisation de l'Ã©cran fonctionne mal.
 	//https://www.sfml-dev.org/tutorials/2.6/window-window.php
 
 	renderWindow.setKeyRepeatEnabled(false);
 	srand((int)time(0));
 	
-	//Nouveau: toujours la même chose pour avoir un icon dans l'explorateur Windows
+	//Nouveau: toujours la mÃªme chose pour avoir un icon dans l'explorateur Windows
 	icon.loadFromFile("Ressources\\Sprites\\Misc\\Icon.png");
 	renderWindow.setIcon(icon.getSize().x, icon.getSize().y, icon.getPixelsPtr());
 }
@@ -29,12 +29,13 @@ int Game::run()
 {
 	if (!ContentPipeline::getInstance().loadContent()) return EXIT_FAILURE;
 
-	//Un enum et un pointeur de scene pour faire la manipulation de scène
+	//Un enum et un pointeur de scene pour faire la manipulation de scÃ¨ne
 	Scene::scenes sceneSelector = Scene::scenes::GAME;
 	Scene::levels levelSelector = Scene::levels::LEVEL1;
-	Scene* activeScene = nullptr; //Pointeur de la super-classe, peut pointer sur n'importe quelle scène
+  
+	Scene* activeScene = nullptr; //Pointeur de la super-classe, peut pointer sur n'importe quelle scÃ¨ne
 
-	//Les variables de passage d'information entre scènes devraient être déclarés ici
+	//Les variables de passage d'information entre scÃ¨nes devraient Ãªtre dÃ©clarÃ©s ici
 	int currentWave = 1;
 	int score = 0;
 	int highScore = 0;
@@ -46,16 +47,16 @@ int Game::run()
 		if (sceneSelector == Scene::scenes::EXIT) return EXIT_SUCCESS;
 		if (sceneSelector == Scene::scenes::FAIL) return EXIT_FAILURE;
 
-		//Vous allez ajouter d'autre scènes, alors elles devront
-		//être ajoutées ici
+		//Vous allez ajouter d'autre scÃ¨nes, alors elles devront
+		//Ãªtre ajoutÃ©es ici
 		switch (sceneSelector)
 		{
 		case Scene::scenes::TITLE:
-			//Les deux attributs sont récessaire et passés par référence
+			//Les deux attributs sont rÃ©cessaire et passÃ©s par rÃ©fÃ©rence
 			activeScene = new SceneTitle(renderWindow, event);
 			break;
 		case Scene::scenes::TRANSITION:
-			//Les deux attributs sont récessaire et passés par référence
+			//Les deux attributs sont rÃ©cessaire et passÃ©s par rÃ©fÃ©rence
 			activeScene = new SceneTransition(renderWindow, event, currentWave);
 			break;
 		case Scene::scenes::GAME:
@@ -74,17 +75,17 @@ int Game::run()
 			break;
 		}
 		
-		if (activeScene->init()) //Si l'initilisation s'est bien passé, on entre dans ce bloc
+		if (activeScene->init()) //Si l'initilisation s'est bien passÃ©, on entre dans ce bloc
 		{
-			//Run est la boucle de jeu de la scène
-			//À la fin de cette méthode, elle retourne la scène
+			//Run est la boucle de jeu de la scÃ¨ne
+			//Ã€ la fin de cette mÃ©thode, elle retourne la scÃ¨ne
 			//Laquelle on transition
 			sceneSelector = activeScene->run();
 
-			//À la fin d'une scène, s'il y a des sauvegardes à faire
-			//C'est possible de les faire là.
+			//Ã€ la fin d'une scÃ¨ne, s'il y a des sauvegardes Ã  faire
+			//C'est possible de les faire lÃ .
 			SceneGame* tempScene = dynamic_cast<SceneGame*>(activeScene);
-			if (tempScene != nullptr)//Donc si le cast a réussi.
+			if (tempScene != nullptr)//Donc si le cast a rÃ©ussi.
 			{
 				currentWave++;
 				if (typeid(*tempScene) == typeid(Level1))
@@ -93,14 +94,14 @@ int Game::run()
 					levelSelector = Scene::levels::LEVEL1;
 			}			
 		}
-		else //Si l'initialisation rate (exemple: pour assets mal chargés), on fail et on nettoie ce qui est à nettoyer
+		else //Si l'initialisation rate (exemple: pour assets mal chargÃ©s), on fail et on nettoie ce qui est Ã  nettoyer
 		{
 			sceneSelector = Scene::scenes::FAIL;
-			//clean-up éventuel à faire pour s'assurer 
-			//de ne pas avoir de leak (malgré l'échec)
+			//clean-up Ã©ventuel Ã  faire pour s'assurer 
+			//de ne pas avoir de leak (malgrÃ© l'Ã©chec)
 		}		
 
-		//Nécessaire tout ce qui est crée avec new doit être effacé.
+		//NÃ©cessaire tout ce qui est crÃ©e avec new doit Ãªtre effacÃ©.
 		delete activeScene;
 		activeScene = nullptr;
 	}

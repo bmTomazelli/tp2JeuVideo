@@ -37,7 +37,11 @@ bool SceneGame::init()
 
 	hud.hudInit(ContentPipeline::getInstance().getHudmaskTexture(), ContentPipeline::getInstance().getComiciFont(), currentWave);
 
+	
+
 	Subject::addObserver(this);
+
+    //Initialisation des emplacements de tours
 
 	music.setVolume(DESIRED_MUSIC_VOLUME);
 	music.play();
@@ -48,10 +52,10 @@ void SceneGame::getInputs()
 {
 	inputs.reset();
 
-	//On passe l'événement en référence et celui-ci est chargé du dernier événement reçu!
+	//On passe l'Ã©vÃ©nement en rÃ©fÃ©rence et celui-ci est chargÃ© du dernier Ã©vÃ©nement reÃ§u!
 	while (renderWindow.pollEvent(event))
 	{
-		//x sur la fenêtre
+		//x sur la fenÃªtre
 		if (event.type == Event::Closed) exitGame();
 
 		if (event.type == Event::KeyPressed)
@@ -71,6 +75,40 @@ void SceneGame::getInputs()
 	}
 	else
 	{
+        if (Mouse::isButtonPressed(Mouse::Left))
+        {
+            Vector2f clickPosition = renderWindow.mapPixelToCoords(Mouse::getPosition(renderWindow));
+
+            for (TowerEmplacement* emplacement : listTowerEmplacements)
+            {
+                if (!emplacement->isOccupied() && emplacement->getGlobalBounds().contains(clickPosition))
+                {
+                    selectedEmplacement = emplacement;
+                    break;
+                }
+            }
+        }
+        //70 mana
+        if (Keyboard::isKeyPressed(Keyboard::Z) && selectedEmplacement)
+        {
+            inputs.buildArcherTower = true;    
+        }
+        //100 mana
+        if (Keyboard::isKeyPressed(Keyboard::X) && selectedEmplacement)
+        {
+            inputs.buildMageTower = true;
+        }
+
+        if (Keyboard::isKeyPressed(Keyboard::D))
+        {
+            for (int i = 0; i < MAX_MAGE_TOWERS; i++)
+            {
+                if (mageTowers[i].isActive())
+                {
+                    mageTowers[i].setLife();
+                }
+            }
+        }
 		
 	}
 }
@@ -80,9 +118,55 @@ void SceneGame::update()
 	if (isKingDead) return;
 
 	manageWaypoints();
+    std::vector<Demon*> activeDemons;
 
-	for (int i = 0; i < MAX_DEMONS_ON_SCREEN; i++)
-		demons[i].update(deltaTime);
+    if (inputs.buildArcherTower && selectedEmplacement)
+    {
+        for (int i = 0; i < MAX_ARCHER_TOWERS; i++)
+        {
+            if (!archerTowers[i].isActive())
+            {
+                archerTowers[i].init();
+                archerTowers[i].spawn(selectedEmplacement->getPosition());
+                selectedEmplacement->occupyTower(&archerTowers[i]);
+                selectedEmplacement = nullptr; // Reset selected emplacement after placing a tower
+                break;
+            }
+        }
+    }
+    if (inputs.buildMageTower && selectedEmplacement)
+    {
+        for (int i = 0; i < MAX_MAGE_TOWERS; i++)
+        {
+            if (!mageTowers[i].isActive())
+            {
+                mageTowers[i].init();
+                mageTowers[i].spawn(selectedEmplacement->getPosition());
+                selectedEmplacement->occupyTower(&mageTowers[i]);
+                selectedEmplacement = nullptr; // Reset selected emplacement after placing a tower
+                break;
+            }
+        }
+    }
+
+    for (int i = 0; i < MAX_DEMONS_ON_SCREEN; i++) {
+        demons[i].update(deltaTime);
+        if (demons[i].isActive()) {
+            activeDemons.push_back(&demons[i]);
+        }
+    }
+
+    for (int i = 0; i < MAX_ARCHER_TOWERS; i++)
+    {
+        if(archerTowers[i].isActive())
+            archerTowers[i].update(deltaTime, activeDemons);
+    }
+
+    for (int i = 0; i < MAX_MAGE_TOWERS; i++)
+    {
+        if (mageTowers[i].isActive())
+            mageTowers[i].update(deltaTime, activeDemons);
+    }
 	
 	hud.updateHud(mana, kills, score, highScore);
 
@@ -92,7 +176,7 @@ void SceneGame::update()
 
 void SceneGame::draw()
 {
-	//Toujours important d'effacer l'écran précédent
+	//Toujours important d'effacer l'Ã©cran prÃ©cÃ©dent
 	renderWindow.draw(map);
 
 	if (showWaypoints)
@@ -108,8 +192,29 @@ void SceneGame::draw()
 		if (demons[i].isActive())
 		{
 			demons[i].draw(renderWindow);
+      
 		}	
 	}
+
+	for (TowerEmplacement* towerEmplacement : listTowerEmplacements) {
+			towerEmplacement->draw(renderWindow);
+	}
+
+    for (int i = 0; i < MAX_ARCHER_TOWERS; i++)
+    {
+        if (archerTowers[i].isActive())
+            archerTowers[i].draw(renderWindow);
+        
+
+    }
+    for (int i = 0; i < MAX_MAGE_TOWERS; i++)
+    {
+
+        int x = 0;
+        if (mageTowers[i].isActive())
+            mageTowers[i].draw(renderWindow);
+    }
+    renderWindow.draw(kingTower);
 
 	for (int i = 0; i < MAX_DEMONS_ON_SCREEN; i++)
 	{
@@ -120,6 +225,7 @@ void SceneGame::draw()
 	}
 
 	hud.draw(renderWindow);
+
 }
 
 bool SceneGame::unload()
@@ -130,7 +236,7 @@ bool SceneGame::unload()
 	}
 	waypoints.clear();
 
-	//Important: n’oubliez pas d’enlever tous les observateurs en fin de scène (unload) sinon vous aurez des crashs à travailler sur des observateurs désormais absents en mémoire.
+	//Important: nâ€™oubliez pas dâ€™enlever tous les observateurs en fin de scÃ¨ne (unload) sinon vous aurez des crashs Ã  travailler sur des observateurs dÃ©sormais absents en mÃ©moire.
 	Subject::removeAllObservers();
 	return true;
 }
@@ -168,7 +274,7 @@ void SceneGame::manageDemonsSpawning()
 			}
 		}
 
-		// Algorithme de génération aléatoire de secondes proposé par ChatGPT
+		// Algorithme de gÃ©nÃ©ration alÃ©atoire de secondes proposÃ© par ChatGPT
 		nextDemonSpawnTime = 1.0f + static_cast<float>(rand()) / (static_cast<float>(RAND_MAX) / 2.0f);
 	}
 }
