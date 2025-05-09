@@ -33,7 +33,6 @@ bool SceneGame::init()
 	for (int i = 0; i < MAX_DEMONS_ON_SCREEN; i++)
 	{
 		demons[i].init(currentWave);
-		demons[i].assignWaypointToFollow(waypoints[0]);
 	}
 
 	hud.hudInit(ContentPipeline::getInstance().getHudmaskTexture(), ContentPipeline::getInstance().getComiciFont(), currentWave);
@@ -112,6 +111,14 @@ void SceneGame::draw()
 		}	
 	}
 
+	for (int i = 0; i < MAX_DEMONS_ON_SCREEN; i++)
+	{
+		if (demons[i].isActive())
+		{
+			demons[i].drawDemonHealth(renderWindow);
+		}
+	}
+
 	hud.draw(renderWindow);
 }
 
@@ -156,6 +163,7 @@ void SceneGame::manageDemonsSpawning()
 			{
 				demonsAmount++;
 				demons[i].spawnDemon(demonDefaultPosition);
+				demons[i].assignWaypointToFollow(waypoints[0]);
 				break;
 			}
 		}

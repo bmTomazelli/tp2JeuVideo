@@ -30,7 +30,7 @@ int Game::run()
 	if (!ContentPipeline::getInstance().loadContent()) return EXIT_FAILURE;
 
 	//Un enum et un pointeur de scene pour faire la manipulation de scène
-	Scene::scenes sceneSelector = Scene::scenes::TITLE;
+	Scene::scenes sceneSelector = Scene::scenes::GAME;
 	Scene::levels levelSelector = Scene::levels::LEVEL1;
 	Scene* activeScene = nullptr; //Pointeur de la super-classe, peut pointer sur n'importe quelle scène
 

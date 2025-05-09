@@ -3,6 +3,7 @@
 #include "Waypoint.h"
 #include "IObserver.h"
 #include "Subject.h"
+#include "HealthGauge.h"
 
 /*
 Metrics du Demon (à effacer à la fin)
@@ -25,9 +26,11 @@ public:
 
 	void init(const int wave);
 	void update(const float deltaTime);
+	void drawDemonHealth(RenderWindow& renderWindow) const;
 
 	void assignWaypointToFollow(Waypoint* waypoint);
 	void spawnDemon(const Vector2f position);
+	void loseHealth(const float damage);
 
 	bool isDying() const;
 	Waypoint* getWaypointToFollow() const;
@@ -48,8 +51,11 @@ private:
 	const int ANIM_DEMON = 5;
 
 	const int MAX_DEMON_HEALTH = 60;
-	const int DEFAULT_DEMON_SPEED = 54.0f;
-	const int SPEED_WAVE_MULTIPLIER = 6.0f;
+	const float DEFAULT_DEMON_SPEED = 54.0f;
+	const float SPEED_WAVE_MULTIPLIER = 6.0f;
+
+	const float HEALTHGAUGE_OFFSET_X = 25.0f;
+	const float HEALTHGAUGE_OFFSET_Y = RECTANGLE_HEIGHT * 2;
 
 	IntRect* imagesFlying;
 	IntRect* imagesDying;
@@ -67,5 +73,6 @@ private:
 	float angle = 0;
 
 	Sound attackSound;
+	HealthGauge healthGauge;
 };
 

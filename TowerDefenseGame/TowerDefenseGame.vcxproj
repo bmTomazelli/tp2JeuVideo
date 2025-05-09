@@ -25,6 +25,7 @@
     <ClInclude Include="Game.h" />
     <ClInclude Include="ContentPipeline.h" />
     <ClInclude Include="GameObject.h" />
+    <ClInclude Include="HealthGauge.h" />
     <ClInclude Include="TwoPathWaypoint.h" />
     <ClInclude Include="Hud.h" />
     <ClInclude Include="Inputs.h" />
@@ -49,6 +50,7 @@
     <ClCompile Include="Game.cpp" />
     <ClCompile Include="ContentPipeline.cpp" />
     <ClCompile Include="GameObject.cpp" />
+    <ClCompile Include="HealthGauge.cpp" />
     <ClCompile Include="Hud.cpp" />
     <ClCompile Include="Level2.cpp" />
     <ClCompile Include="Main.cpp" />

@@ -156,6 +156,9 @@
     <ClCompile Include="TwoPathWaypoint.cpp">
       <Filter>Fichiers sources\Utils</Filter>
     </ClCompile>
+    <ClCompile Include="HealthGauge.cpp">
+      <Filter>Fichiers sources\Utils</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Game.h">
@@ -225,6 +228,9 @@
       <Filter>Fichiers d%27en-tête\Scenes\Levels</Filter>
     </ClInclude>
     <ClInclude Include="TwoPathWaypoint.h">
+      <Filter>Fichiers d%27en-tête\Utils</Filter>
+    </ClInclude>
+    <ClInclude Include="HealthGauge.h">
       <Filter>Fichiers d%27en-tête\Utils</Filter>
     </ClInclude>
   </ItemGroup>
