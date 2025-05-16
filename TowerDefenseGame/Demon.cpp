@@ -57,12 +57,9 @@ void Demon::init(const int wave)
 
 void Demon::update(const float deltaTime)
 {
-	if (isActive())
-	{
-		checkStatus();
-		manageMovement(deltaTime);
-		manageAnimation(deltaTime);
-	}
+	checkStatus();
+	manageMovement(deltaTime);
+	manageAnimation(deltaTime);
 }
 
 void Demon::notify(Subject* subject)

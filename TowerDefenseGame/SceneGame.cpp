@@ -109,7 +109,6 @@ void SceneGame::getInputs()
                 }
             }
         }
-		
 	}
 }
 
@@ -150,15 +149,15 @@ void SceneGame::update()
     }
 
     for (int i = 0; i < MAX_DEMONS_ON_SCREEN; i++) {
-        demons[i].update(deltaTime);
         if (demons[i].isActive()) {
+            demons[i].update(deltaTime);
             activeDemons.push_back(&demons[i]);
         }
     }
 
     for (int i = 0; i < MAX_ARCHER_TOWERS; i++)
     {
-        if(archerTowers[i].isActive())
+        if (archerTowers[i].isActive())
             archerTowers[i].update(deltaTime, activeDemons);
     }
 
@@ -179,42 +178,31 @@ void SceneGame::draw()
 	//Toujours important d'effacer l'écran précédent
 	renderWindow.draw(map);
 
-	if (showWaypoints)
-	{
-		for (int i = 0; i < waypointsAmount; i++)
-		{
-			waypoints[i]->draw(renderWindow);
-		}
-	}
-
-	for (int i = 0; i < MAX_DEMONS_ON_SCREEN; i++)
-	{
-		if (demons[i].isActive())
-		{
-			demons[i].draw(renderWindow);
-      
-		}	
-	}
-
-	for (TowerEmplacement* towerEmplacement : listTowerEmplacements) {
-			towerEmplacement->draw(renderWindow);
+	for (TowerEmplacement* towerEmplacement : listTowerEmplacements)
+    {
+        towerEmplacement->draw(renderWindow);
 	}
 
     for (int i = 0; i < MAX_ARCHER_TOWERS; i++)
     {
         if (archerTowers[i].isActive())
             archerTowers[i].draw(renderWindow);
-        
-
     }
     for (int i = 0; i < MAX_MAGE_TOWERS; i++)
     {
-
-        int x = 0;
         if (mageTowers[i].isActive())
             mageTowers[i].draw(renderWindow);
     }
+
     renderWindow.draw(kingTower);
+
+    for (int i = 0; i < MAX_DEMONS_ON_SCREEN; i++)
+    {
+        if (demons[i].isActive())
+        {
+            demons[i].draw(renderWindow);
+        }
+    }
 
 	for (int i = 0; i < MAX_DEMONS_ON_SCREEN; i++)
 	{
@@ -223,6 +211,14 @@ void SceneGame::draw()
 			demons[i].drawDemonHealth(renderWindow);
 		}
 	}
+
+    if (showWaypoints)
+    {
+        for (int i = 0; i < waypointsAmount; i++)
+        {
+            waypoints[i]->draw(renderWindow);
+        }
+    }
 
 	hud.draw(renderWindow);
 
