@@ -1,10 +1,12 @@
 #include "SceneGame.h"
 #include "ContentPipeline.h"
 
-SceneGame::SceneGame(RenderWindow& renderWindow, Event& event, int currentWave) : Scene(renderWindow, event)
+SceneGame::SceneGame(RenderWindow& renderWindow, Event& event, int currentWave, int score, int highScore) : Scene(renderWindow, event)
 {
 	view = renderWindow.getDefaultView();
 	this->currentWave = currentWave;
+	this->score = score;
+	this->highScore = highScore;
 }
 
 Scene::scenes SceneGame::run()
@@ -31,10 +33,9 @@ bool SceneGame::init()
 	for (int i = 0; i < MAX_DEMONS_ON_SCREEN; i++)
 	{
 		demons[i].init(currentWave);
-		demons[i].assignWaypointToFollow(waypoints[0]);
 	}
 
-	hud.hudInit(ContentPipeline::getInstance().getHudmaskTexture(), ContentPipeline::getInstance().getComiciFont());
+	hud.hudInit(ContentPipeline::getInstance().getHudmaskTexture(), ContentPipeline::getInstance().getComiciFont(), currentWave);
 
 	
 
@@ -51,22 +52,21 @@ void SceneGame::getInputs()
 {
 	inputs.reset();
 
-	//On passe l'événement en référence et celui-ci est chargé du dernier événement reçu!
+	//On passe l'Ã©vÃ©nement en rÃ©fÃ©rence et celui-ci est chargÃ© du dernier Ã©vÃ©nement reÃ§u!
 	while (renderWindow.pollEvent(event))
 	{
-		//x sur la fenêtre
+		//x sur la fenÃªtre
 		if (event.type == Event::Closed) exitGame();
 
 		if (event.type == Event::KeyPressed)
 		{
 			if (event.key.code == Keyboard::W)
 				inputs.toggleWaypoints = true;
+			if (event.key.code == Keyboard::Z)
+				inputs.buildArcherTower = true;
 
-            if (event.key.code == Keyboard::Z)
-                inputs.buildArcherTower = true;
-
-            if (event.key.code == Keyboard::X)
-                inputs.buildMageTower = true;
+			if (event.key.code == Keyboard::X)
+				inputs.buildMageTower = true;
             
 		}
 	}
@@ -110,6 +110,8 @@ void SceneGame::getInputs()
 
 void SceneGame::update()
 {
+	if (isKingDead) return;
+
 	manageWaypoints();
     std::vector<Demon*> activeDemons;
 
@@ -151,8 +153,6 @@ void SceneGame::update()
         }
     }
 
-
-
     for (int i = 0; i < MAX_ARCHER_TOWERS; i++)
     {
         if(archerTowers[i].isActive())
@@ -164,13 +164,16 @@ void SceneGame::update()
         if (mageTowers[i].isActive())
             mageTowers[i].update(deltaTime, activeDemons);
     }
+	
+	hud.updateHud(mana, kills, score, highScore);
 
 	manageDemonsSpawning();
+	manageGameOver();
 }
 
 void SceneGame::draw()
 {
-	//Toujours important d'effacer l'écran précédent
+	//Toujours important d'effacer l'Ã©cran prÃ©cÃ©dent
 	renderWindow.draw(map);
 
 	if (showWaypoints)
@@ -186,7 +189,7 @@ void SceneGame::draw()
 		if (demons[i].isActive())
 		{
 			demons[i].draw(renderWindow);
-
+      
 		}	
 	}
 
@@ -210,6 +213,14 @@ void SceneGame::draw()
     }
     renderWindow.draw(kingTower);
 
+	for (int i = 0; i < MAX_DEMONS_ON_SCREEN; i++)
+	{
+		if (demons[i].isActive())
+		{
+			demons[i].drawDemonHealth(renderWindow);
+		}
+	}
+
 	hud.draw(renderWindow);
 
 }
@@ -229,6 +240,10 @@ bool SceneGame::unload()
     }
     listTowerEmplacements.clear();
 
+	waypoints.clear();
+
+	//Important: nâ€™oubliez pas dâ€™enlever tous les observateurs en fin de scÃ¨ne (unload) sinon vous aurez des crashs Ã  travailler sur des observateurs dÃ©sormais absents en mÃ©moire.
+	Subject::removeAllObservers();
 	return true;
 }
 
@@ -260,12 +275,26 @@ void SceneGame::manageDemonsSpawning()
 			{
 				demonsAmount++;
 				demons[i].spawnDemon(demonDefaultPosition);
+				demons[i].assignWaypointToFollow(waypoints[0]);
 				break;
 			}
 		}
 
-		// Algorithme de génération aléatoire de secondes proposé par ChatGPT
+		// Algorithme de gÃ©nÃ©ration alÃ©atoire de secondes proposÃ© par ChatGPT
 		nextDemonSpawnTime = 1.0f + static_cast<float>(rand()) / (static_cast<float>(RAND_MAX) / 2.0f);
+	}
+}
+
+void SceneGame::manageGameOver()
+{
+	if (kills == MAX_DEMONS_AMOUNT)
+	{
+		hud.changeToEndGameHud(true);
+	}
+
+	if (isKingDead)
+	{
+		hud.changeToEndGameHud(false);
 	}
 }
 

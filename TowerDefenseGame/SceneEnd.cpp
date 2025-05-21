@@ -1,9 +1,12 @@
 #include "SceneEnd.h"
 #include "ContentPipeline.h"
 
-SceneEnd::SceneEnd(RenderWindow& renderWindow, Event& event) : Scene(renderWindow, event)
+SceneEnd::SceneEnd(RenderWindow& renderWindow, Event& event, int score, int highScore, int waveAmount) : Scene(renderWindow, event)
 {
 	view = renderWindow.getDefaultView();
+	this->score = score;
+	this->highScore = highScore;
+	this->waveAmount = waveAmount;
 }
 
 Scene::scenes SceneEnd::run()
@@ -90,11 +93,31 @@ void SceneEnd::getInputs()
 	{
 		//x sur la fenêtre
 		if (event.type == Event::Closed) exitGame();	
+
+		if (event.type == Event::KeyPressed)
+		{
+			if (event.key.code == Keyboard::Enter)
+				returnToTitle = true;
+
+			if (event.key.code == Keyboard::Escape)
+				exit = true;
+		}
 	}
 }
 
 void SceneEnd::update()
 {
+	if (returnToTitle)
+	{
+		transitionToScene = Scene::scenes::TITLE;
+		isRunning = false;
+	}
+
+	if (exit)
+	{
+		transitionToScene = Scene::scenes::EXIT;
+		isRunning = false;
+	}
 }
 
 void SceneEnd::draw()

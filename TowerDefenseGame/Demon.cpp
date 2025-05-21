@@ -48,6 +48,7 @@ void Demon::init(const int wave)
 	setOrigin(imageWidth / 2, imageHeight / 2);
 
 	Subject::addObserver(this);
+	healthGauge.init();
 
 	this->wave = wave;
 	speed = DEFAULT_DEMON_SPEED + (SPEED_WAVE_MULTIPLIER * wave);
@@ -66,6 +67,7 @@ void Demon::update(const float deltaTime)
 
 void Demon::notify(Subject* subject)
 {
+
 }
 
 void Demon::assignWaypointToFollow(Waypoint* waypoint)
@@ -76,9 +78,16 @@ void Demon::assignWaypointToFollow(Waypoint* waypoint)
 void Demon::spawnDemon(const Vector2f position)
 {
 	setPosition(position);
+	healthGauge.setPosition(Vector2f(getPosition().x - HEALTHGAUGE_OFFSET_X, getPosition().y - HEALTHGAUGE_OFFSET_Y));
 	setDemonState(DemonState::FLYING);
 	health = MAX_DEMON_HEALTH;
 	activate();
+}
+
+void Demon::loseHealth(const float damage)
+{
+	health -= damage;
+	healthGauge.removeHealth((health * 100.0f / MAX_DEMON_HEALTH) / 100.0f);
 }
 
 Waypoint* Demon::getWaypointToFollow() const
@@ -88,7 +97,7 @@ Waypoint* Demon::getWaypointToFollow() const
 
 void Demon::checkStatus()
 {
-	if (health < 0 && !isDying()) setDemonState(DemonState::DYING);
+	if (health <= 0 && !isDying()) setDemonState(DemonState::DYING);
 
 	if (isDying() && currentImage == ANIM_DEMON - 1) deactivate();
 }
@@ -101,7 +110,11 @@ void Demon::manageMovement(const float deltaTime)
 		
 	// Déplacement
 	moveAngle = atan2f((waypointToFollow->getPosition().y - getPosition().y), (waypointToFollow->getPosition().x - getPosition().x));
-	move(cos(moveAngle) * deltaTime * speed, sin(moveAngle) * deltaTime * speed);
+
+	float offsetX = cos(moveAngle) * deltaTime * speed;
+	float offsetY = sin(moveAngle) * deltaTime * speed;
+	move(offsetX, offsetY);
+	healthGauge.move(offsetX, offsetY);
 
 	// Réflection
 	if (cos(moveAngle) >= 0)
@@ -112,6 +125,14 @@ void Demon::manageMovement(const float deltaTime)
 	{
 		setScale(-1, 1); // Vise vers la gauche
 	}
+
+	// Rotation continue 
+	//angle++;
+	//setRotation(angle);
+	//if (angle > 360)
+	//{
+	//	angle = 0;
+	//}
 
 	checkCollisionWithWaypoint();
 }
@@ -157,6 +178,11 @@ void Demon::runAnimation(const float deltaTime, const float timePerFrame, const 
 
 		setTextureRect(images[currentImage]);
 	}
+}
+
+void Demon::drawDemonHealth(RenderWindow& renderWindow) const
+{
+	healthGauge.draw(renderWindow);
 }
 
 void Demon::setDemonState(DemonState animationState)
