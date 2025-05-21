@@ -51,8 +51,6 @@ void MageTower::update(float deltaTime, std::vector<Demon*>& demons)
 {
     if (!isActive()) return;
 
-    takeDamage(2);
-
     if (!animating)
     {
         target = findNearestTarget(demons);

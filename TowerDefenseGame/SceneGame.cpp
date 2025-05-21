@@ -62,10 +62,12 @@ void SceneGame::getInputs()
 		{
 			if (event.key.code == Keyboard::W)
 				inputs.toggleWaypoints = true;
-			if (event.key.code == Keyboard::Enter)
-			{
+			if (event.key.code == Keyboard::Z)
+				inputs.buildArcherTower = true;
 
-			}
+			if (event.key.code == Keyboard::X)
+				inputs.buildMageTower = true;
+            
 		}
 	}
 
@@ -79,26 +81,19 @@ void SceneGame::getInputs()
         {
             Vector2f clickPosition = renderWindow.mapPixelToCoords(Mouse::getPosition(renderWindow));
 
-            for (TowerEmplacement* emplacement : listTowerEmplacements)
-            {
-                if (!emplacement->isOccupied() && emplacement->getGlobalBounds().contains(clickPosition))
+            if (inputs.buildArcherTower || inputs.buildArcherTower) {
+                for (TowerEmplacement* emplacement : listTowerEmplacements)
                 {
-                    selectedEmplacement = emplacement;
-                    break;
+                    if (!emplacement->isOccupied() && emplacement->getGlobalBounds().contains(clickPosition))
+                    {
+                        selectedEmplacement = emplacement;
+                        break;
+                    }
                 }
+
             }
         }
-        //70 mana
-        if (Keyboard::isKeyPressed(Keyboard::Z) && selectedEmplacement)
-        {
-            inputs.buildArcherTower = true;    
-        }
-        //100 mana
-        if (Keyboard::isKeyPressed(Keyboard::X) && selectedEmplacement)
-        {
-            inputs.buildMageTower = true;
-        }
-
+       
         if (Keyboard::isKeyPressed(Keyboard::D))
         {
             for (int i = 0; i < MAX_MAGE_TOWERS; i++)
@@ -129,6 +124,7 @@ void SceneGame::update()
                 archerTowers[i].spawn(selectedEmplacement->getPosition());
                 selectedEmplacement->occupyTower(&archerTowers[i]);
                 selectedEmplacement = nullptr; // Reset selected emplacement after placing a tower
+                inputs.buildArcherTower = false; // Reset input after placing a tower
                 break;
             }
         }
@@ -143,6 +139,7 @@ void SceneGame::update()
                 mageTowers[i].spawn(selectedEmplacement->getPosition());
                 selectedEmplacement->occupyTower(&mageTowers[i]);
                 selectedEmplacement = nullptr; // Reset selected emplacement after placing a tower
+                inputs.buildMageTower = false; // Reset input after placing a tower
                 break;
             }
         }
@@ -230,6 +227,15 @@ bool SceneGame::unload()
 	{
 		delete waypoints[i];
 	}
+
+    waypoints.clear();
+
+    for (TowerEmplacement* towerEmplacement : listTowerEmplacements)
+    {
+        delete towerEmplacement;
+    }
+    listTowerEmplacements.clear();
+
 	waypoints.clear();
 
 	//Important: n’oubliez pas d’enlever tous les observateurs en fin de scène (unload) sinon vous aurez des crashs à travailler sur des observateurs désormais absents en mémoire.
