@@ -32,12 +32,17 @@ public:
 	void spawnDemon(const Vector2f position);
 	void loseHealth(const float damage);
 
+    void prepareShooting();
+
 	bool isDying() const;
+    bool canShoot() const;
 	Waypoint* getWaypointToFollow() const;
+    FloatRect getTargetDetectionBox() const;
 
 private:
 	void checkStatus();
 	void manageMovement(const float deltaTime);
+    void manageRecoil(const float deltaTime);
 	void checkCollisionWithWaypoint();
 	void manageAnimation(const float deltaTime);
 	void runAnimation(const float deltaTime, const float timePerFrame, const int imageNumber, const bool linear, IntRect* images);
@@ -55,7 +60,10 @@ private:
 	const float SPEED_WAVE_MULTIPLIER = 6.0f;
 
 	const float HEALTHGAUGE_OFFSET_X = 25.0f;
-	const float HEALTHGAUGE_OFFSET_Y = RECTANGLE_HEIGHT * 2;
+	const float HEALTHGAUGE_OFFSET_Y = RECTANGLE_HEIGHT * 2.0f;
+    const int TARGET_DETECTION_BOX_SIZE = 200;
+
+    const float MAX_RECOIL = 3.0f;
 
 	IntRect* imagesFlying;
 	IntRect* imagesDying;
@@ -63,16 +71,20 @@ private:
 	DemonState demonState;
 	float timeCounter = 0.0f;
 	int currentImage = 0;
-	const float TIME_PER_FRAME = 0.1;
+	const float TIME_PER_FRAME = 0.1f;
 
 	Waypoint* waypointToFollow;
+    
+    HealthGauge healthGauge;
 	int health = MAX_DEMON_HEALTH;
 	float speed = 0;
 	int wave = 0;
 	float moveAngle;
 	float angle = 0;
+    float recoil = 0;
+
+    FloatRect targetDetectionBox;
 
 	Sound attackSound;
-	HealthGauge healthGauge;
 };
 

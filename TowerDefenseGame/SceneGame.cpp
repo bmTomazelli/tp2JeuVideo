@@ -35,13 +35,21 @@ bool SceneGame::init()
 		demons[i].init(currentWave);
 	}
 
+    // Initialisation des projectiles
+    for (int i = 0; i < MAX_TOWERS_PROJECTILES; i++)
+    {
+        arrows->init(Projectile::ARROW);
+        blasts->init(Projectile::BLAST);
+    }
+
+    for (int i = 0; i < MAX_FIREBALL_AMOUNT; i++)
+    {
+        fireballs->init(Projectile::FIREBALL);
+    }
+
 	hud.hudInit(ContentPipeline::getInstance().getHudmaskTexture(), ContentPipeline::getInstance().getComiciFont(), currentWave);
 
-	
-
 	Subject::addObserver(this);
-
-    //Initialisation des emplacements de tours
 
 	music.setVolume(DESIRED_MUSIC_VOLUME);
 	music.play();
@@ -62,6 +70,7 @@ void SceneGame::getInputs()
 		{
 			if (event.key.code == Keyboard::W)
 				inputs.toggleWaypoints = true;
+
 			if (event.key.code == Keyboard::Enter)
 			{
 
@@ -133,6 +142,7 @@ void SceneGame::update()
             }
         }
     }
+
     if (inputs.buildMageTower && selectedEmplacement)
     {
         for (int i = 0; i < MAX_MAGE_TOWERS; i++)
@@ -166,6 +176,9 @@ void SceneGame::update()
         if (mageTowers[i].isActive())
             mageTowers[i].update(deltaTime, activeDemons);
     }
+
+    handleDemonsTargets();
+    handleProjectilesOnScreen();
 	
 	hud.updateHud(mana, kills, score, highScore);
 
@@ -183,6 +196,8 @@ void SceneGame::draw()
         towerEmplacement->draw(renderWindow);
 	}
 
+    // Projectiles
+
     for (int i = 0; i < MAX_ARCHER_TOWERS; i++)
     {
         if (archerTowers[i].isActive())
@@ -199,25 +214,24 @@ void SceneGame::draw()
     for (int i = 0; i < MAX_DEMONS_ON_SCREEN; i++)
     {
         if (demons[i].isActive())
-        {
             demons[i].draw(renderWindow);
-        }
     }
 
 	for (int i = 0; i < MAX_DEMONS_ON_SCREEN; i++)
 	{
 		if (demons[i].isActive())
-		{
 			demons[i].drawDemonHealth(renderWindow);
-		}
 	}
 
     if (showWaypoints)
     {
         for (int i = 0; i < waypointsAmount; i++)
-        {
             waypoints[i]->draw(renderWindow);
-        }
+    }
+    for (int i = 0; i < MAX_FIREBALL_AMOUNT; i++)
+    {
+        if (fireballs->isActive())
+            fireballs->draw(renderWindow);
     }
 
 	hud.draw(renderWindow);
@@ -288,9 +302,61 @@ void SceneGame::manageGameOver()
 	}
 }
 
+void SceneGame::handleDemonsTargets()
+{
+    float minimumDistance = 0;
+
+    for (int i = 0; i < MAX_DEMONS_ON_SCREEN; i++)
+    {
+        if (demons[i].isActive() && demons[i].canShoot())
+        {
+            Tower* nearestTarget = findNearestTowerFromDemon(&demons[i], listTowerEmplacements);
+            if (nearestTarget)
+            {
+                demons[i].prepareShooting();
+                fireballs->shoot(demons[i].getPosition(), nearestTarget);
+            }
+        }
+    }
+}
+
+void SceneGame::handleProjectilesOnScreen()
+{
+    for (int i = 0; i < MAX_FIREBALL_AMOUNT; i++)
+    {
+        if (fireballs[i].isActive())
+        {
+            fireballs[i].moveToTarget(deltaTime);
+        }
+    }
+}
+
 Waypoint* SceneGame::getNextWaypointForDemon(Demon* demon) const
 {
 	return demon->getWaypointToFollow()->getNextWaypoint();
+}
+
+Tower* SceneGame::findNearestTowerFromDemon(const Demon* source, const std::vector<TowerEmplacement*>& towers)
+{
+    Tower* closest = nullptr;
+    float closestDistance = SCREEN_WIDTH * SCREEN_WIDTH;
+
+    for (TowerEmplacement* towerEmplacement : towers)
+    {
+        if (!towerEmplacement->isOccupied()) continue;
+
+        float dx = towerEmplacement->getPosition().x - source->getPosition().x;
+        float dy = towerEmplacement->getPosition().y - source->getPosition().y;
+        float distSq = dx * dx + dy * dy;
+
+        if (distSq < closestDistance)
+        {
+            closestDistance = distSq;
+            closest = towerEmplacement->getTower();
+        }
+    }
+
+    return closest;
 }
 
 void SceneGame::notify(Subject* subject)

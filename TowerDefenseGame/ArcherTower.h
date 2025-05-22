@@ -18,5 +18,6 @@ public:
 private:
     float fireCooldown;
     float fireTimer;
+
     void shoot(Demon* target);
 };

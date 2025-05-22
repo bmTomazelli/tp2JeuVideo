@@ -9,6 +9,7 @@
 #include "ArcherTower.h"
 #include "MageTower.h"
 #include "KingTower.h"
+#include "Projectile.h"
 #include <iostream>
 #include <list>
 
@@ -56,7 +57,11 @@ protected:
 	void manageDemonsSpawning();
 	void manageGameOver();
 
+    void handleDemonsTargets();
+    void handleProjectilesOnScreen();
+
 	virtual Waypoint* getNextWaypointForDemon(Demon* demon) const;
+    Tower* findNearestTowerFromDemon(const Demon* source, const std::vector<TowerEmplacement*>& towers);
 
 	void notify(Subject* subject) override;
 
@@ -98,13 +103,22 @@ protected:
     std::vector<TowerEmplacement*> listTowerEmplacements;
     TowerEmplacement* selectedEmplacement = nullptr;
 
-    //tours
+    // Tours
     static const int MAX_ARCHER_TOWERS = 10;
     static const int MAX_MAGE_TOWERS = 10;
 
     ArcherTower archerTowers[MAX_ARCHER_TOWERS];
     MageTower mageTowers[MAX_MAGE_TOWERS];
     KingTower kingTower;
+
+    // Projectiles
+    static const int MAX_FIREBALL_AMOUNT = 20;
+    static const int MAX_TOWERS_PROJECTILES = 10;
+
+    Projectile fireballs[MAX_FIREBALL_AMOUNT];
+    Projectile arrows[MAX_TOWERS_PROJECTILES];
+    Projectile blasts[MAX_TOWERS_PROJECTILES];
+
 	// Informations du jeu
 	int mana = 0;
 	int kills = 0;
@@ -112,5 +126,4 @@ protected:
 	int highScore;
 
 	bool isKingDead = false;
-
 };

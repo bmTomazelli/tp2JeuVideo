@@ -1,6 +1,9 @@
 #include "Demon.h"
+#include "Constants.h"
 #include "ContentPipeline.h"
 #include "TwoPathWaypoint.h"
+#include "Tower.h"
+#include "TowerEmplacement.h"
 #include <iostream>
 
 Demon::Demon()
@@ -47,6 +50,13 @@ void Demon::init(const int wave)
 	setTextureRect(imagesFlying[0]);
 	setOrigin(imageWidth / 2, imageHeight / 2);
 
+    targetDetectionBox = FloatRect(
+        getPosition().x - TARGET_DETECTION_BOX_SIZE / 2,
+        getPosition().y - TARGET_DETECTION_BOX_SIZE / 2,
+        TARGET_DETECTION_BOX_SIZE,
+        TARGET_DETECTION_BOX_SIZE
+    );
+
 	Subject::addObserver(this);
 	healthGauge.init();
 
@@ -58,6 +68,7 @@ void Demon::init(const int wave)
 void Demon::update(const float deltaTime)
 {
 	checkStatus();
+    manageRecoil(deltaTime);
 	manageMovement(deltaTime);
 	manageAnimation(deltaTime);
 }
@@ -87,9 +98,19 @@ void Demon::loseHealth(const float damage)
 	healthGauge.removeHealth((health * 100.0f / MAX_DEMON_HEALTH) / 100.0f);
 }
 
+void Demon::prepareShooting()
+{
+    recoil = MAX_RECOIL;
+}
+
 Waypoint* Demon::getWaypointToFollow() const
 {
 	return waypointToFollow;
+}
+
+FloatRect Demon::getTargetDetectionBox() const
+{
+	return targetDetectionBox;
 }
 
 void Demon::checkStatus()
@@ -132,6 +153,16 @@ void Demon::manageMovement(const float deltaTime)
 	//}
 
 	checkCollisionWithWaypoint();
+}
+
+void Demon::manageRecoil(const float deltaTime)
+{
+    recoil -= deltaTime;
+
+    if (recoil <= 0.0f)
+    {
+        recoil = 0.0f;
+    }
 }
 
 void Demon::checkCollisionWithWaypoint()
@@ -192,4 +223,9 @@ void Demon::setDemonState(DemonState animationState)
 bool Demon::isDying() const
 {
 	return demonState == DemonState::DYING;
+}
+
+bool Demon::canShoot() const
+{
+    return recoil <= 0;
 }
