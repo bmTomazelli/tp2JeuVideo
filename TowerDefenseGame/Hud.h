@@ -1,5 +1,6 @@
 #pragma once
 #include <SFML/Graphics.hpp>
+#include "Constants.h"
 
 using namespace sf;
 
@@ -14,11 +15,14 @@ public:
 	void updateHud(int mana, int kills, int score, int highScore);
 	void draw(sf::RenderWindow& renderWindow);
 
+    void handleActiveAction(const ActiveAction activeAction);
 	void changeToEndGameHud(bool isVictory);
 
 private:
 	static const int INSTRUCTIONS_NUMBER = 6;
 	static const int TEXT_POSITION_X = 1250;
+
+    void resetColors();
 
 	bool endGame = false;
 	bool useGamePad = false;

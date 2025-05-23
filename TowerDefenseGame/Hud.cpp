@@ -72,6 +72,12 @@ void Hud::draw(sf::RenderWindow& renderWindow)
 		renderWindow.draw(instructionTexts[i]);
 }
 
+void Hud::handleActiveAction(const ActiveAction activeAction)
+{
+    resetColors();
+    instructionTexts[activeAction + 1].setColor(Color(212, 175, 55, 255));
+}
+
 void Hud::changeToEndGameHud(bool isVictory)
 {
 	endGame = true;
@@ -81,4 +87,10 @@ void Hud::changeToEndGameHud(bool isVictory)
 		specialStateText.setString("Game Over!");
 
 	pressCommandText.setString("Press Enter to Continue");
+}
+
+void Hud::resetColors()
+{
+    for (int i = 0; i < INSTRUCTIONS_NUMBER; i++)
+        instructionTexts[i].setColor(Color::White);
 }

@@ -53,15 +53,18 @@ protected:
 	bool unload() override;
 
 	virtual void initWaypoints() = 0;
+    
+    void manageActiveAction();
 	void manageWaypoints();
 	void manageDemonsSpawning();
 	void manageGameOver();
-
+    void manageActiveActionChange();
     void handleDemonsTargets();
     void handleProjectilesOnScreen();
 
 	virtual Waypoint* getNextWaypointForDemon(Demon* demon) const;
     Tower* findNearestTowerFromDemon(const Demon* source, const std::vector<TowerEmplacement*>& towers);
+    TowerEmplacement* getTowerEmplacementFromClickedPosition(const Vector2f clickedPosition);
 
 	void notify(Subject* subject) override;
 
@@ -124,6 +127,8 @@ protected:
 	int kills = 0;
 	int score;
 	int highScore;
+
+    ActiveAction activeAction;
 
 	bool isKingDead = false;
 };

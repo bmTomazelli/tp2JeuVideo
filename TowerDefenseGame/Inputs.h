@@ -15,11 +15,15 @@ struct Inputs
 		toggleWaypoints = false;
         buildArcherTower = false;
         buildMageTower = false;
+        activeActionChanged = false;
+        clickOnScreen = false;
 	}
 
 	Vector2f mousePosition;
 	bool mouseLeftButtonClicked;
 	bool toggleWaypoints;
+    bool activeActionChanged;
     bool buildArcherTower = false;
     bool buildMageTower = false;
+    bool clickOnScreen;
 };

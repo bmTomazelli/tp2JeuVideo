@@ -8,6 +8,8 @@ enum ProjectileType { arrow, blast, fireball };
 enum SpellType { sacredLight, plague };
 enum Maps { map1, map2, map3 };
 
+enum ActiveAction { BUILD_ARCHER, BUILD_MAGE, SPAWN_PLAGUE, SPAWN_SACRED_LIGHT };
+
 static const int DESIRED_MUSIC_VOLUME = 10;
 static const float DESIRED_FRAMERATE = 60.0f;
 
