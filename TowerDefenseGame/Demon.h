@@ -4,6 +4,9 @@
 #include "IObserver.h"
 #include "Subject.h"
 #include "HealthGauge.h"
+#include "Spell.h"
+#include "Plague.h"
+#include "SacredLight.h"
 
 /*
 Metrics du Demon (à effacer à la fin)
@@ -71,6 +74,10 @@ private:
 	int wave = 0;
 	float moveAngle;
 	float angle = 0;
+
+    float spellTimer = 0.f;
+    float plagueTickTimer = 0.f;
+    float plagueDamageMultiplier = 1.f;
 
 	Sound attackSound;
 	HealthGauge healthGauge;

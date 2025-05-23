@@ -13,8 +13,10 @@ struct Inputs
 		mousePosition = Vector2f(0.0f, 0.0f);
 		mouseLeftButtonClicked = false;
 		toggleWaypoints = false;
-        buildArcherTower = false;
+       /* buildArcherTower = false;
         buildMageTower = false;
+        castSacredLight = false;
+        castPlague = false;*/
 	}
 
 	Vector2f mousePosition;
@@ -22,4 +24,6 @@ struct Inputs
 	bool toggleWaypoints;
     bool buildArcherTower = false;
     bool buildMageTower = false;
+    bool castSacredLight = false;
+    bool castPlague = false;
 };

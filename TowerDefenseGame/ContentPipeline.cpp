@@ -34,6 +34,7 @@ bool ContentPipeline::loadContent()
 	if (!runesTexture.loadFromFile("Ressources\\Sprites\\Spells\\Runes.png")) return false;
 	if (!sacredLightTexture.loadFromFile("Ressources\\Sprites\\Spells\\SacredLight.png")) return false;
 	if (!plagueTexture.loadFromFile("Ressources\\Sprites\\Spells\\Plague.png")) return false;
+    if (!magicCircleTexture.loadFromFile("Ressources\\Sprites\\Spells\\MagicCircle.png")) return false;
 
 	if (!archerTowerTexture.loadFromFile("Ressources\\Sprites\\Towers\\ArcherTower.png")) return false;
 	if (!kingTowerTexture.loadFromFile("Ressources\\Sprites\\Towers\\KingTower.png")) return false;
@@ -78,6 +79,7 @@ const Texture& ContentPipeline::getVictoryScreenTexture() const { return victory
 const Texture& ContentPipeline::getRunesTexture() const { return runesTexture; }
 const Texture& ContentPipeline::getSacredLightTexture() const { return sacredLightTexture; }
 const Texture& ContentPipeline::getPlagueTexture() const { return plagueTexture; }
+const Texture& ContentPipeline::getMagicCircleTexture() const { return magicCircleTexture; }
 
 const Texture& ContentPipeline::getArcherTowerTexture() const { return archerTowerTexture; }
 const Texture& ContentPipeline::getKingTowerTexture() const { return kingTowerTexture; }

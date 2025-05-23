@@ -64,8 +64,38 @@ void Demon::update(const float deltaTime)
 
 void Demon::notify(Subject* subject)
 {
+    Spell* spell = dynamic_cast<Spell*>(subject);
+    if (!spell) return;
 
+    float dx = spell->getPosition().x - getPosition().x;
+    float dy = spell->getPosition().y - getPosition().y;
+    float distSq = dx * dx + dy * dy;
+
+    if (distSq > spell->getRange() * spell->getRange()) return;
+
+    spellTimer = spell->getDuration();
+
+    if (spell->getType() == SpellType::sacredLight)
+    {
+        SacredLight* sl = dynamic_cast<SacredLight*>(spell);
+        if (!sl) return;
+
+        speed /= sl->getSpeedMultiplier();
+        setColor(sl->getColor());
+    }
+    else if (spell->getType() == SpellType::plague)
+    {
+        Plague* plague = dynamic_cast<Plague*>(spell);
+        if (!plague) return;
+
+        loseHealth(plague->getDamageAmount()); // initial damage
+        setColor(plague->getColor());
+        plagueDamageMultiplier = plague->getDamageMultiplier(); // ex: 2.0f
+        plagueTickTimer = 0.f;
+    }
 }
+
+
 
 void Demon::assignWaypointToFollow(Waypoint* waypoint)
 {
@@ -104,6 +134,32 @@ void Demon::manageMovement(const float deltaTime)
 	if (isDying()) return;
 
 	if (waypointToFollow == nullptr) return;
+
+    if (spellTimer > 0.0f) {
+        spellTimer -= deltaTime;
+
+        if (plagueDamageMultiplier > 1.0f) {
+            plagueTickTimer += deltaTime;
+
+            if (plagueTickTimer >= 1.0f) // hit a chaque 1 seconde
+            {
+                loseHealth(1 * plagueDamageMultiplier); //hit initiel
+                plagueTickTimer = 0.0f; //resset pour le prochain tick de 1 seconde
+            }
+        }
+
+        //domage initial
+        if (spellTimer <= 0.0f)
+        {
+            setColor(sf::Color::White);
+            plagueDamageMultiplier = 1.0f;
+
+            speed = DEFAULT_DEMON_SPEED + (SPEED_WAVE_MULTIPLIER * wave);
+
+
+        }
+    }
+
 		
 	// Déplacement
 	moveAngle = atan2f((waypointToFollow->getPosition().y - getPosition().y), (waypointToFollow->getPosition().x - getPosition().x));

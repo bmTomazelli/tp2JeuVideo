@@ -1,5 +1,6 @@
 #include "ArcherTower.h"
 #include "ContentPipeline.h"
+#include <iostream>
 
 ArcherTower::ArcherTower() {}
 
@@ -17,6 +18,8 @@ void ArcherTower::init()
     fireCooldown = ARCHER_FIRE_RATE;
     fireTimer = 0.f;
 
+    healthGauge.init();
+
     float radius = static_cast<float>(ARCHER_WIDTH) * TOWER_COLLISION_RADIUS_SCALE;
     setCollisionCircleRadius(radius);
 }
@@ -24,6 +27,7 @@ void ArcherTower::init()
 void ArcherTower::spawn(const sf::Vector2f& position)
 {
     setPosition(position);
+    healthGauge.setPosition(Vector2f(getPosition().x - 30.f, getPosition().y - 75.f));
     activate();
 }
 
@@ -31,9 +35,31 @@ void ArcherTower::update(float deltaTime, std::vector<Demon*>& demons)
 {
     if (!isActive()) return;
 
+    updateStatus(deltaTime); // plague, boost etc.
+    updateSpell(deltaTime);
+    handleFiring(deltaTime, demons);
+}
+
+void ArcherTower::updateSpell(float deltaTime)
+{
+    if (spellTimer > 0.f)
+    {
+        setColor(spellColor);
+        spellTimer -= deltaTime;
+        if (spellTimer <= 0.f)
+        {
+            fireCooldown = ARCHER_FIRE_RATE;
+            fireSpell = 1.f;
+            setColor(sf::Color::White);
+        }
+    }
+}
+
+void ArcherTower::handleFiring(float deltaTime, std::vector<Demon*>& demons)
+{
     fireTimer += deltaTime;
 
-    if (fireTimer >= fireCooldown)
+    if (fireTimer >= fireCooldown / fireSpell)
     {
         Demon* target = findNearestTarget(demons);
         if (target)
@@ -44,6 +70,8 @@ void ArcherTower::update(float deltaTime, std::vector<Demon*>& demons)
     }
 }
 
+
+
 void ArcherTower::shoot(Demon* target)
 {
     // Criar arrow, exibir som, etc.
@@ -51,11 +79,13 @@ void ArcherTower::shoot(Demon* target)
 
 void ArcherTower::draw(sf::RenderWindow& renderWindow) const
 {
-    if (isActive())
+    if (isActive()) {
         GameObject::draw(renderWindow);
+        healthGauge.draw(renderWindow);
+    }
 }
 
 void ArcherTower::notify(Subject* subject)
 {
-    // Reagir a spell se necessário
+    Tower::notify(subject);
 }

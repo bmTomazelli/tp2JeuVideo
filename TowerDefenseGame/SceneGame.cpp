@@ -33,11 +33,15 @@ bool SceneGame::init()
 	for (int i = 0; i < MAX_DEMONS_ON_SCREEN; i++)
 	{
 		demons[i].init(currentWave);
+        Subject::addObserver(&demons[i]);
 	}
 
 	hud.hudInit(ContentPipeline::getInstance().getHudmaskTexture(), ContentPipeline::getInstance().getComiciFont(), currentWave);
 
-	
+
+
+    sacredLight.init();
+    plague.init();
 
 	Subject::addObserver(this);
 
@@ -62,48 +66,38 @@ void SceneGame::getInputs()
 		{
 			if (event.key.code == Keyboard::W)
 				inputs.toggleWaypoints = true;
-			if (event.key.code == Keyboard::Z)
-				inputs.buildArcherTower = true;
 
-			if (event.key.code == Keyboard::X)
-				inputs.buildMageTower = true;
+            if (event.key.code == Keyboard::Z) {
+                inputs.buildArcherTower = true;
+                inputs.buildMageTower = false;
+            }
+            if (event.key.code == Keyboard::X) {
+                inputs.buildMageTower = true;
+                inputs.buildArcherTower = false;
+            }
+				
+            if (event.key.code == Keyboard::C) {
+                inputs.castSacredLight = true;
+                inputs.castPlague = false;
+            }
+
+            if (event.key.code == Keyboard::V) {
+                inputs.castPlague = true;
+                inputs.castSacredLight = false;
+            }
+                
             
 		}
+
+        if (event.type == Event::MouseButtonPressed && event.mouseButton.button == Mouse::Left) {
+            inputs.mouseLeftButtonClicked = true;
+            inputs.mousePosition = renderWindow.mapPixelToCoords(Mouse::getPosition(renderWindow));
+        }
 	}
 
 	if (Joystick::isConnected(0))
 	{
 
-	}
-	else
-	{
-        if (Mouse::isButtonPressed(Mouse::Left))
-        {
-            Vector2f clickPosition = renderWindow.mapPixelToCoords(Mouse::getPosition(renderWindow));
-
-            if (inputs.buildArcherTower || inputs.buildArcherTower) {
-                for (TowerEmplacement* emplacement : listTowerEmplacements)
-                {
-                    if (!emplacement->isOccupied() && emplacement->getGlobalBounds().contains(clickPosition))
-                    {
-                        selectedEmplacement = emplacement;
-                        break;
-                    }
-                }
-
-            }
-        }
-       
-        if (Keyboard::isKeyPressed(Keyboard::D))
-        {
-            for (int i = 0; i < MAX_MAGE_TOWERS; i++)
-            {
-                if (mageTowers[i].isActive())
-                {
-                    mageTowers[i].setLife();
-                }
-            }
-        }
 	}
 }
 
@@ -114,36 +108,49 @@ void SceneGame::update()
 	manageWaypoints();
     std::vector<Demon*> activeDemons;
 
-    if (inputs.buildArcherTower && selectedEmplacement)
-    {
-        for (int i = 0; i < MAX_ARCHER_TOWERS; i++)
-        {
-            if (!archerTowers[i].isActive())
-            {
-                archerTowers[i].init();
-                archerTowers[i].spawn(selectedEmplacement->getPosition());
-                selectedEmplacement->occupyTower(&archerTowers[i]);
-                selectedEmplacement = nullptr; // Reset selected emplacement after placing a tower
-                inputs.buildArcherTower = false; // Reset input after placing a tower
-                break;
+    //Pour la gestion des tours, si le joueur clique sur un emplacement de tour, on vérifie s'il est libre et on construit la tour
+    if (inputs.mouseLeftButtonClicked) {
+        for (TowerEmplacement* emplacement : listTowerEmplacements) {
+            if (!emplacement->isOccupied()) {
+                // On vérifie si le clic est dans l'emplacement de la tour
+                if (emplacement->getGlobalBounds().contains(inputs.mousePosition)) {
+                    // On vérifie si l'emplacement est de type archertower ou magetower
+                    //on ajoutera plus tard la valeur de la mana dans cet if
+                    if (inputs.buildArcherTower) {
+                        for (int i = 0; i < MAX_ARCHER_TOWERS; ++i) {
+                            if (!archerTowers[i].isActive()) {
+                                archerTowers[i].init();
+                                archerTowers[i].spawn(emplacement->getPosition());
+                                emplacement->occupyTower(&archerTowers[i]);
+
+                                Subject::addObserver(&archerTowers[i]);
+                                break;
+                            }
+                        }
+                        inputs.buildArcherTower = false;
+                    }
+
+                    //plus tard, on ajoutera la valeur de la mana dans cet if
+                    else if (inputs.buildMageTower) {
+                        for (int i = 0; i < MAX_MAGE_TOWERS; ++i) {
+                            if (!mageTowers[i].isActive()) {
+                                mageTowers[i].init();
+                                mageTowers[i].spawn(emplacement->getPosition());
+                                emplacement->occupyTower(&mageTowers[i]);
+
+                                Subject::addObserver(&mageTowers[i]);
+                                break;
+                            }
+                        }
+                        inputs.buildMageTower = false;
+                    }
+
+                    break;
+                }
             }
         }
     }
-    if (inputs.buildMageTower && selectedEmplacement)
-    {
-        for (int i = 0; i < MAX_MAGE_TOWERS; i++)
-        {
-            if (!mageTowers[i].isActive())
-            {
-                mageTowers[i].init();
-                mageTowers[i].spawn(selectedEmplacement->getPosition());
-                selectedEmplacement->occupyTower(&mageTowers[i]);
-                selectedEmplacement = nullptr; // Reset selected emplacement after placing a tower
-                inputs.buildMageTower = false; // Reset input after placing a tower
-                break;
-            }
-        }
-    }
+
 
     for (int i = 0; i < MAX_DEMONS_ON_SCREEN; i++) {
         if (demons[i].isActive()) {
@@ -163,6 +170,26 @@ void SceneGame::update()
         if (mageTowers[i].isActive())
             mageTowers[i].update(deltaTime, activeDemons);
     }
+
+    //Update pour les magies
+    //si le joueur clique sur la souris gauche, on active la magie
+    //plus tard, on ajoutera la valeur de la mana dans cet if
+    if (inputs.castSacredLight && inputs.mouseLeftButtonClicked)
+    {
+        sacredLight.activate(inputs.mousePosition);
+        inputs.castSacredLight = false;
+    }
+
+    sacredLight.update(deltaTime);
+
+    //plus tard, on ajoutera la valeur de la mana dans cet if
+    if (inputs.castPlague && inputs.mouseLeftButtonClicked)
+    {
+        plague.activate(inputs.mousePosition);
+        inputs.castPlague = false;
+    }
+
+    plague.update(deltaTime);
 	
 	hud.updateHud(mana, kills, score, highScore);
 
@@ -182,16 +209,18 @@ void SceneGame::draw()
 
     for (int i = 0; i < MAX_ARCHER_TOWERS; i++)
     {
-        if (archerTowers[i].isActive())
+        if (archerTowers[i].isActive()) {
             archerTowers[i].draw(renderWindow);
+        }
     }
     for (int i = 0; i < MAX_MAGE_TOWERS; i++)
     {
-        if (mageTowers[i].isActive())
+        if (mageTowers[i].isActive()) {
             mageTowers[i].draw(renderWindow);
+        }
     }
 
-    renderWindow.draw(kingTower);
+    kingTower.draw(renderWindow);
 
     for (int i = 0; i < MAX_DEMONS_ON_SCREEN; i++)
     {
@@ -216,6 +245,9 @@ void SceneGame::draw()
             waypoints[i]->draw(renderWindow);
         }
     }
+
+    sacredLight.draw(renderWindow);
+    plague.draw(renderWindow);
 
 	hud.draw(renderWindow);
 
