@@ -24,6 +24,9 @@ void MageTower::init()
     float radius = static_cast<float>(MAGE_FRAME_WIDTH) * TOWER_COLLISION_RADIUS_SCALE;
     setCollisionCircleRadius(radius);
 
+
+    healthGauge.init();
+
     setTextureRect(animationFrames[0]);
     setOrigin(MAGE_FRAME_WIDTH / 2.f, MAGE_FRAME_HEIGHT / 2.f);
 }
@@ -31,6 +34,7 @@ void MageTower::init()
 void MageTower::spawn(const Vector2f& position)
 {
     setPosition(position);
+    healthGauge.setPosition(Vector2f(getPosition().x - 30.f, getPosition().y - 75.f));
     activate();
 }
 
@@ -51,26 +55,49 @@ void MageTower::update(float deltaTime, std::vector<Demon*>& demons)
 {
     if (!isActive()) return;
 
+    updateStatus(deltaTime);
+    updateSpell(deltaTime);
+    handleTargeting(demons);
+    handleAnimation(deltaTime);
+}
+
+void MageTower::updateSpell(float deltaTime)
+{
+    if (spellTimer > 0.f)
+    {
+        setColor(spellColor);
+        spellTimer -= deltaTime;
+        if (spellTimer <= 0.f)
+        {
+            fireSpell = 1.f;
+            setColor(sf::Color::White);
+        }
+    }
+}
+
+void MageTower::handleTargeting(const std::vector<Demon*>& demons)
+{
     if (!animating)
     {
         target = findNearestTarget(demons);
         if (target)
         {
             float dx = target->getPosition().x - getPosition().x;
-            if(dx<=0)
-                setScale(1.f, 1.f);
-            else
-                setScale(-1.f, 1.f);
+            setScale((dx <= 0.f) ? 1.f : -1.f, 1.f);
 
             animating = true;
             currentFrame = 0;
             animationTimer = 0.f;
         }
     }
+}
 
+void MageTower::handleAnimation(float deltaTime)
+{
     if (animating)
     {
-        animationTimer += deltaTime;
+        animationTimer += deltaTime * fireSpell;
+
         if (animationTimer >= frameDuration[currentFrame])
         {
             animationTimer = 0.f;
@@ -88,6 +115,8 @@ void MageTower::update(float deltaTime, std::vector<Demon*>& demons)
     }
 }
 
+
+
 void MageTower::shoot()
 {
     //projectile
@@ -95,16 +124,28 @@ void MageTower::shoot()
 
 void MageTower::draw(RenderWindow& renderWindow) const
 {
-    if (isActive())
+    if (isActive()) {
         GameObject::draw(renderWindow);
+        healthGauge.draw(renderWindow);
+    }
 }
 
 void MageTower::notify(Subject* subject)
 {
-   //reaction aux spells
-}
+    Tower::notify(subject);
+    Spell* spell = dynamic_cast<Spell*>(subject);
 
-void MageTower::setLife()
-{
-    hp = 0;
+    if (!spell) return;
+
+    float dx = spell->getPosition().x - getPosition().x;
+    float dy = spell->getPosition().y - getPosition().y;
+    float distSq = dx * dx + dy * dy;
+
+    if (distSq > spell->getRange() * spell->getRange()) return;
+
+    if (spell->getType() == SpellType::sacredLight)
+    {
+        //speed boost
+
+    }
 }

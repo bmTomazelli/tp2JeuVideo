@@ -14,6 +14,9 @@ void KingTower::init()
     hp = KING_TOWER_HP;
     range = 0.f;
 
+
+    healthGauge.init();
+
     float radius = static_cast<float>(w) * TOWER_COLLISION_RADIUS_SCALE;
     setCollisionCircleRadius(radius);
 
@@ -22,10 +25,15 @@ void KingTower::init()
 void KingTower::spawn(const Vector2f& position)
 {
     setPosition(position);
+    healthGauge.setPosition(Vector2f(getPosition().x - 25.f, getPosition().y - 100.f));
     activate();
 }
 
 void KingTower::update(float deltaTime, std::vector<Demon*>& demons)
+{
+}
+
+void KingTower::updateSpell(float deltaTime)
 {
     // Ça fait rien
 }
@@ -33,4 +41,13 @@ void KingTower::update(float deltaTime, std::vector<Demon*>& demons)
 void KingTower::notify(Subject* subject)
 {
     // Ça fait rien
+}
+
+void KingTower::draw(RenderWindow& renderWindow) const
+{
+    if (isActive())
+    {
+        GameObject::draw(renderWindow);
+        healthGauge.draw(renderWindow);
+    }
 }

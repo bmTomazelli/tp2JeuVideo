@@ -3,7 +3,11 @@
 #include "Subject.h"
 #include "IObserver.h"
 #include "Demon.h"
+#include "Spell.h"
+#include "Plague.h"
+#include "SacredLight.h"
 #include <vector>
+
 
 class Tower : public GameObject, public Subject, public IObserver
 {
@@ -19,15 +23,27 @@ public:
 
     Tower();
     virtual ~Tower();
-
+    void init();
     virtual void update(float deltaTime, std::vector<Demon*>& demons) = 0;
     virtual void draw(RenderWindow& renderWindow) const;
-
     void takeDamage(int damage);
+    void notify(Subject* subject) override;
 
 protected:
     Demon* findNearestTarget(const std::vector<Demon*>& demons);
+    void updateStatus(float deltaTime);
+    virtual void updateSpell(float deltaTime) =0;
+
     bool active;
     int hp;
     float range;
+    HealthGauge healthGauge;
+    float spellTimer;
+    float fireSpell;
+    Color spellColor;
+    float plagueTimer = 0.f;
+    float plagueTickTimer = 0.f;
+    float plagueDamageMultiplier = 1.f;
+
+
 };

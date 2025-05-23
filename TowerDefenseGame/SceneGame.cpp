@@ -33,6 +33,7 @@ bool SceneGame::init()
 	for (int i = 0; i < MAX_DEMONS_ON_SCREEN; i++)
 	{
 		demons[i].init(currentWave);
+        Subject::addObserver(&demons[i]);
 	}
 
     // Initialisation des projectiles
@@ -47,7 +48,10 @@ bool SceneGame::init()
         fireballs->init(Projectile::FIREBALL);
     }
 
-	hud.hudInit(ContentPipeline::getInstance().getHudmaskTexture(), ContentPipeline::getInstance().getComiciFont(), currentWave);
+    hud.hudInit(ContentPipeline::getInstance().getHudmaskTexture(), ContentPipeline::getInstance().getComiciFont(), currentWave);
+
+    sacredLight.init();
+    plague.init();
 
 	Subject::addObserver(this);
 
@@ -70,7 +74,6 @@ void SceneGame::getInputs()
 		{
 			if (event.key.code == Keyboard::W)
 				inputs.toggleWaypoints = true;
-
             if (event.key.code == Keyboard::Z)
             {
                 inputs.activeActionChanged = true;
@@ -82,6 +85,7 @@ void SceneGame::getInputs()
                 inputs.activeActionChanged = true;
                 inputs.buildMageTower = true;
             }
+            
 		}
 
         if (event.type == Event::MouseButtonPressed)
@@ -92,14 +96,15 @@ void SceneGame::getInputs()
                 inputs.mousePosition = renderWindow.mapPixelToCoords(Mouse::getPosition(renderWindow));
             }
         }
-    }
+	}
 
 	if (Joystick::isConnected(0))
 	{
 
 	}
 	else
-	{       
+	{
+       
         if (Keyboard::isKeyPressed(Keyboard::D))
         {
             for (int i = 0; i < MAX_MAGE_TOWERS; i++)
@@ -123,7 +128,6 @@ void SceneGame::update()
 
 	manageWaypoints();
     std::vector<Demon*> activeDemons;
-
     for (int i = 0; i < MAX_DEMONS_ON_SCREEN; i++) {
         if (demons[i].isActive()) {
             demons[i].update(deltaTime);
@@ -142,10 +146,29 @@ void SceneGame::update()
         if (mageTowers[i].isActive())
             mageTowers[i].update(deltaTime, activeDemons);
     }
-
     handleDemonsTargets();
     handleProjectilesOnScreen();
-	
+    
+    //Update pour les magies
+    //si le joueur clique sur la souris gauche, on active la magie
+    //plus tard, on ajoutera la valeur de la mana dans cet if
+    if (inputs.castSacredLight && inputs.mouseLeftButtonClicked)
+    {
+        sacredLight.activate(inputs.mousePosition);
+        inputs.castSacredLight = false;
+    }
+
+    sacredLight.update(deltaTime);
+
+    //plus tard, on ajoutera la valeur de la mana dans cet if
+    if (inputs.castPlague && inputs.mouseLeftButtonClicked)
+    {
+        plague.activate(inputs.mousePosition);
+        inputs.castPlague = false;
+    }
+
+    plague.update(deltaTime);
+
 	hud.updateHud(mana, kills, score, highScore);
 
 	manageDemonsSpawning();
@@ -177,11 +200,12 @@ void SceneGame::draw()
 
     for (int i = 0; i < MAX_MAGE_TOWERS; i++)
     {
-        if (mageTowers[i].isActive())
+        if (mageTowers[i].isActive()) 
             mageTowers[i].draw(renderWindow);
+        
     }
 
-    renderWindow.draw(kingTower);
+    kingTower.draw(renderWindow);
 
     for (int i = 0; i < MAX_DEMONS_ON_SCREEN; i++)
     {
@@ -200,6 +224,9 @@ void SceneGame::draw()
         for (int i = 0; i < waypointsAmount; i++)
             waypoints[i]->draw(renderWindow);
     }
+
+    sacredLight.draw(renderWindow);
+    plague.draw(renderWindow);
 
 	hud.draw(renderWindow);
 }

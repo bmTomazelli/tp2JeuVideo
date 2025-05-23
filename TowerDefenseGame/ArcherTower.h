@@ -14,6 +14,8 @@ public:
     void update(float deltaTime, std::vector<Demon*>& demons) override;
     void draw(sf::RenderWindow& renderWindow) const override;
     void notify(Subject* subject) override;
+    void updateSpell(float deltaTime) override;
+    void handleFiring(float deltaTime, std::vector<Demon*>& demons);
 
 private:
     float fireCooldown;

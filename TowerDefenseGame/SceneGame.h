@@ -9,6 +9,8 @@
 #include "ArcherTower.h"
 #include "MageTower.h"
 #include "KingTower.h"
+#include "SacredLight.h"
+#include "Plague.h"
 #include "Projectile.h"
 #include <iostream>
 #include <list>
@@ -131,4 +133,7 @@ protected:
     ActiveAction activeAction;
 
 	bool isKingDead = false;
+	//Spells
+	SacredLight sacredLight;
+	Plague plague;
 };

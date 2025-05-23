@@ -16,8 +16,9 @@ public:
     MageTower();
     void update(float deltaTime, std::vector<Demon*>& demons) override;
     void draw(RenderWindow& renderWindow) const override;
-
-    void setLife();
+    void handleTargeting(const std::vector<Demon*>& demons);
+    void handleAnimation(float deltaTime);
+    void updateSpell(float deltaTime) override;
 
     void init();
     void spawn(const Vector2f& position);
@@ -31,6 +32,9 @@ private:
     size_t currentFrame;
     bool animating;
     Demon* target;
+
+    //boost
+    
 
     //fire
 	float fireCooldown;
