@@ -106,67 +106,61 @@ void SceneGame::getInputs()
 
 		if (event.type == Event::KeyPressed)
 		{
-			if (event.key.code == Keyboard::W)
-				inputs.toggleWaypoints = true;
-            if (event.key.code == Keyboard::Z)
+            if (isGameEnd)
             {
-                inputs.activeActionChanged = true;
-                inputs.buildArcherTower = true;
-            }
-
-            if (event.key.code == Keyboard::X)
-            {
-                inputs.activeActionChanged = true;
-                inputs.buildMageTower = true;
-            }
-
-            if (event.key.code == Keyboard::A)
-            {
-                inputs.activeActionChanged = true;
-                inputs.castPlague = true;
-            }
-
-            if (event.key.code == Keyboard::S)
-            {
-                inputs.activeActionChanged = true;
-                inputs.castSacredLight = true;
-            }
-
-            if (event.key.code == Keyboard::P)
-            {
-                inputs.togglePause = true;
-            }
-
-            if (event.key.code == Keyboard::Enter)
-            {
-                if (isGameEnd)
+                if (event.key.code == Keyboard::Enter)
                     transitionToNextScene();
+            }
+            else
+            {
+                if (event.key.code == Keyboard::W)
+                    inputs.toggleWaypoints = true;
+
+                if (event.key.code == Keyboard::Z)
+                {
+                    inputs.activeActionChanged = true;
+                    inputs.buildArcherTower = true;
+                }
+
+                if (event.key.code == Keyboard::X)
+                {
+                    inputs.activeActionChanged = true;
+                    inputs.buildMageTower = true;
+                }
+
+                if (event.key.code == Keyboard::A)
+                {
+                    inputs.activeActionChanged = true;
+                    inputs.castPlague = true;
+                }
+
+                if (event.key.code == Keyboard::S)
+                {
+                    inputs.activeActionChanged = true;
+                    inputs.castSacredLight = true;
+                }
+
+                if (event.key.code == Keyboard::P)
+                {
+                    inputs.togglePause = true;
+                }
             }
 		}
 
         if (event.type == Event::MouseButtonPressed)
         {
-            if (event.mouseButton.button == Mouse::Left)
+            if (!isGameEnd && event.mouseButton.button == Mouse::Left)
             {
                 inputs.clickOnScreen = true;
                 inputs.mousePosition = renderWindow.mapPixelToCoords(Mouse::getPosition(renderWindow));
             }
         }
 	}
-
-	if (Joystick::isConnected(0))
-	{
-
-	}
-	else
-	{
-
-	}
 }
 
 void SceneGame::update()
 {
-	if (isGameEnd) return;
+	if (isGameEnd && isKingDead) return;
 
     managePause();
 
@@ -211,8 +205,9 @@ void SceneGame::update()
 
 	hud.updateHud(mana, kills, score, highScore);
 
+    if (!isGameEnd) manageTimedManaGain();
+
 	manageDemonsSpawning();
-    manageTimedManaGain();
 	manageGameOver();
 }
 
@@ -221,8 +216,6 @@ void SceneGame::draw()
 	//Toujours important d'effacer l'écran précédent
 	renderWindow.draw(map);
 
-    std::cout << "Is Occupied : " << listTowerEmplacements[0]->isOccupied() << "\n";
-    std::cout << "Is Active : " << listTowerEmplacements[0]->isActive() << "\n";
 	for (TowerEmplacement* towerEmplacement : listTowerEmplacements)
     {
         towerEmplacement->draw(renderWindow);
@@ -423,6 +416,7 @@ void SceneGame::managePause()
             isInPause = true;
             music.pause();
         }
+        hud.togglePause();
     }
 }
 

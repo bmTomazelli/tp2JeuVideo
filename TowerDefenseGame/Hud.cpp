@@ -47,6 +47,11 @@ void Hud::hudInit(const Texture& hudMaskTexture, const Font& font, int currentWa
 
 	pressCommandText = specialStateText;
 	pressCommandText.setPosition(TEXT_POSITION_X, 60);
+
+    pauseText = specialStateText;
+    pauseText.setString("Pause");
+    pauseText.setCharacterSize(35);
+    pauseText.setPosition(10, 10);
 }
 
 void Hud::updateHud(int mana, int kills, int score, int highScore)
@@ -59,6 +64,11 @@ void Hud::updateHud(int mana, int kills, int score, int highScore)
 
 void Hud::draw(sf::RenderWindow& renderWindow)
 {
+    if (isInPause)
+    {
+        renderWindow.draw(pauseText);
+    }
+
 	renderWindow.draw(hudMask);
 	renderWindow.draw(specialStateText);
 	renderWindow.draw(pressCommandText);
@@ -70,6 +80,14 @@ void Hud::draw(sf::RenderWindow& renderWindow)
 
 	for (int i = 0; i < INSTRUCTIONS_NUMBER; i++)
 		renderWindow.draw(instructionTexts[i]);
+}
+
+void Hud::togglePause()
+{
+    if (isInPause)
+        isInPause = false;
+    else
+        isInPause = true; 
 }
 
 void Hud::handleActiveAction(const ActiveAction activeAction)

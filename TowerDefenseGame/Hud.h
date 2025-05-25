@@ -4,9 +4,6 @@
 
 using namespace sf;
 
-/*
-À NOTER: La couleur Gold pour le texte de "l'action active" : Color(212, 175, 55, 255)
-*/
 class Hud
 {
 public:
@@ -15,6 +12,7 @@ public:
 	void updateHud(int mana, int kills, int score, int highScore);
 	void draw(sf::RenderWindow& renderWindow);
 
+    void togglePause();
     void handleActiveAction(const ActiveAction activeAction);
 	void changeToEndGameHud(bool isVictory);
 
@@ -26,6 +24,7 @@ private:
 
 	bool endGame = false;
 	bool useGamePad = false;
+    bool isInPause = false;
 
 	sf::Text specialStateText;
 	sf::Text pressCommandText;
@@ -38,6 +37,8 @@ private:
 
 	sf::Text highScoreText;
 	sf::Text waveText;
+
+    sf::Text pauseText;
 
 	Sprite hudMask;
 };

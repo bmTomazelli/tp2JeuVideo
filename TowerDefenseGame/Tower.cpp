@@ -2,7 +2,7 @@
 #include "Projectile.h"
 #include <iostream>
 
-Tower::Tower() : active(false), range(TOWER_RANGE), fireSpell(1.0f), spellTimer(0.0f)
+Tower::Tower() : range(TOWER_RANGE), fireSpell(1.0f), spellTimer(0.0f)
 {
     Subject::addObserver(this);
 }
@@ -105,14 +105,18 @@ void Tower::notify(Subject* subject)
 
         spellTimer = spell->getDuration();
 
+        hitBySpell = true;
+
         if (spell->getType() == SpellType::sacredLight)
         {
             SacredLight* sl = static_cast<SacredLight*>(spell);
 
             spellColor = sl->getColor();
             hp += sl->getHealAmount();
-            healthGauge.addHealth(float(hp) / float(DEFAULT_TOWER_HP));
+            healthGauge.addHealth(float(hp) / float(totalHp));
             fireSpell = sl->getSpeedMultiplier(); // 2.0f
+            recoil /= fireSpell;
+            recoilTimer = recoil;
         }
         else if (spell->getType() == SpellType::plague)
         {

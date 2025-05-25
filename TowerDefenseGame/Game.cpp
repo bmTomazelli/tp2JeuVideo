@@ -14,11 +14,6 @@ Game::Game()
 	//On place dans le contructeur ce qui permet à la game elle-même de fonctionner
 	renderWindow.create(VideoMode(SCREEN_WIDTH, SCREEN_HEIGHT, 32), "Tower Defense Game");  // , Style::Titlebar); / , Style::FullScreen);
 
-	//Synchonisation coordonnée à l'écran!  Normalement 60 frames par secondes. À faire absolument
-	//renderWindow.setVerticalSyncEnabled(true);  //De plus en plus d'écrans sont rafraichis à plus de 60 frames par seconde, alors attention.
-	//renderWindow.setFramerateLimit(60);  //Équivalent... normalement, mais pas toujours. À utiliser si la synchonisation de l'écran fonctionne mal.
-	//https://www.sfml-dev.org/tutorials/2.6/window-window.php
-
 	renderWindow.setKeyRepeatEnabled(false);
 	srand((int)time(0));
 	
@@ -82,18 +77,13 @@ int Game::run()
             break;
         }
 
-        if (activeScene->init()) //Si l'initilisation s'est bien passé, on entre dans ce bloc
+        if (activeScene->init()) 
         {
-            //Run est la boucle de jeu de la scène
-            //À la fin de cette méthode, elle retourne la scène
-            //Laquelle on transition
             sceneSelector = activeScene->run();
 
-            //À la fin d'une scène, s'il y a des sauvegardes à faire
-            //C'est possible de les faire là.
             SceneGame* tempScene = dynamic_cast<SceneGame*>(activeScene);
 
-            if (tempScene != nullptr)//Donc si le cast a réussi.
+            if (tempScene != nullptr)
             {
                 score = tempScene->getScore();
                 highScore = tempScene->getHighScore();
@@ -116,15 +106,12 @@ int Game::run()
                 }
             }
 
-            //Nécessaire tout ce qui est crée avec new doit être effacé.
             delete activeScene;
             activeScene = nullptr;
         }
-        else //Si l'initialisation rate (exemple: pour assets mal chargés), on fail et on nettoie ce qui est à nettoyer
+        else
         {
             sceneSelector = Scene::scenes::FAIL;
-            //clean-up éventuel à faire pour s'assurer 
-            //de ne pas avoir de leak (malgré l'échec)
         }
     }
 }

@@ -38,7 +38,6 @@ protected:
     void updateStatus(float deltaTime);
     virtual void updateSpell(float deltaTime) =0;
 
-    bool active;
     int hp;
     int totalHp;
     float range;
@@ -51,4 +50,5 @@ protected:
     float plagueDamageMultiplier = 1.f;
     float recoil = 0.0f;
     float recoilTimer = 0.0f;
+    bool hitBySpell = false;
 };

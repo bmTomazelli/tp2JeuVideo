@@ -37,6 +37,8 @@ void MageTower::spawn(const Vector2f& position)
     setPosition(position);
     resetStatus();
     hp = DEFAULT_TOWER_HP;
+    recoil = BLAST_RECOIL;
+    recoilTimer = recoil;
     healthGauge.reset();
     healthGauge.setPosition(Vector2f(getPosition().x - 30.f, getPosition().y - 75.f));
     activate();
@@ -69,14 +71,20 @@ void MageTower::update(float deltaTime, std::vector<Demon*>& demons)
 
 void MageTower::updateSpell(float deltaTime)
 {
-    if (spellTimer > 0.f)
+    if (hitBySpell)
     {
-        setColor(spellColor);
-        spellTimer -= deltaTime;
-        if (spellTimer <= 0.f)
+        if (spellTimer > 0.f)
+        {
+            setColor(spellColor);
+            spellTimer -= deltaTime;
+        }
+        else
         {
             fireSpell = 1.0f;
             setColor(sf::Color::White);
+            recoil = BLAST_RECOIL;
+            recoilTimer = 0.0f;
+            hitBySpell = false;
         }
     }
 }
@@ -129,21 +137,6 @@ void MageTower::handleAnimation(float deltaTime)
 void MageTower::notify(Subject* subject)
 {
     Tower::notify(subject);
-    Spell* spell = dynamic_cast<Spell*>(subject);
-
-    if (!spell) return;
-
-    float dx = spell->getPosition().x - getPosition().x;
-    float dy = spell->getPosition().y - getPosition().y;
-    float distSq = dx * dx + dy * dy;
-
-    if (distSq > spell->getRange() * spell->getRange()) return;
-
-    if (spell->getType() == SpellType::sacredLight)
-    {
-        //speed boost
-
-    }
 }
 
 Demon* MageTower::getTarget() const

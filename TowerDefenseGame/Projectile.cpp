@@ -31,6 +31,8 @@ void Projectile::init(const ProjectileType projectileType)
         maxDamage = FIREBALL_MAX_DAMAGE;
         break;
     }
+    hitSound.setBuffer(ContentPipeline::getInstance().getHitSoundBuffer());
+    hitSound.setVolume(DESIRED_MUSIC_VOLUME);
     projectileSound.setVolume(DESIRED_MUSIC_VOLUME);
 }
 
@@ -87,6 +89,7 @@ void Projectile::checkCollisionWithTarget()
     if (distSq <= HIT_RADIUS * HIT_RADIUS)
     {
         notifyAllObservers();
+        hitSound.play();
         deactivateProjectile();
     }
 }
