@@ -20,7 +20,6 @@ public:
 	int run();
 
     bool saveScore(int score, int wave);
-    int getHighScore() const;
 
 private:
 	//Ces deux attributs viennent de Windows

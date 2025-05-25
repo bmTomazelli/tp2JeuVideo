@@ -180,14 +180,16 @@ void Demon::setSceneGame(SceneGame* sceneGame)
 void Demon::checkStatus()
 {
     if (health <= 0 && !isDying()) 
-    {
-        sceneGame->updateScore(SCORE_DEAD_DEMON);
-        sceneGame->updateKill();
-        
+    {        
         setDemonState(DemonState::DYING);
     }
 
-	if (isDying() && currentImage == ANIM_DEMON - 1) deactivate();
+    if (isDying() && currentImage == ANIM_DEMON - 1)
+    {
+        sceneGame->updateScore(SCORE_DEAD_DEMON);
+        sceneGame->updateKill();
+        deactivate();
+    }
 }
 
 void Demon::manageMovement(const float deltaTime)

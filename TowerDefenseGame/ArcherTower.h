@@ -13,7 +13,6 @@ public:
     void init();
     void spawn(const sf::Vector2f& position);
     void update(float deltaTime, std::vector<Demon*>& demons) override;
-    void draw(sf::RenderWindow& renderWindow) const override;
     void notify(Subject* subject) override;
     void updateSpell(float deltaTime) override;
 

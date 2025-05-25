@@ -21,6 +21,7 @@ static const int FIREBALL_MAX_DAMAGE = 11;
 
 static const int MAX_WAVES = 10;
 
+static const int MANA_GAIN_AFTER_KILL = 25;
 static const float MANA_GAIN_TIMER = 0.2f;
 static const int DEFAULT_MANA_AMOUNT = 500;
 static const int BUILD_ARCHER_TOWER_COST = 70;

@@ -1,4 +1,5 @@
 #include "TowerEmplacement.h"
+#include <iostream>
 
 TowerEmplacement::TowerEmplacement()
 {
@@ -22,13 +23,15 @@ void TowerEmplacement::update()
 
 void TowerEmplacement::draw(RenderWindow& renderWindow) const
 {
-	if (!isOccupied())
-		GameObject::draw(renderWindow);
+    if (!isOccupied())
+    {
+        GameObject::draw(renderWindow);
+    }
 }
 
 void TowerEmplacement::occupyTower(Tower* towerP)
-{
-	if (!isOccupied() && towerP)
+{	
+    if (!isOccupied())
 	{
 		tower = towerP;
 		towerP->addObserver(this);

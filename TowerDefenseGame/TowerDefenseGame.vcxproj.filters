@@ -504,9 +504,6 @@
     <Filter Include="Fichiers sources\Actors\Towers">
       <UniqueIdentifier>{d9e2e138-ca31-483e-a451-786544049a94}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Fichiers sources\Actors\ContentPipeline">
-      <UniqueIdentifier>{da40bf4f-f6d1-44a9-9b2f-1972b3593dab}</UniqueIdentifier>
-    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Main.cpp">

@@ -33,20 +33,12 @@ void KingTower::spawn(const Vector2f& position)
 
 void KingTower::update(float deltaTime, std::vector<Demon*>& demons)
 {
+    // Hérité de Tower
 }
 
 void KingTower::updateSpell(float deltaTime)
 {
-    // Ça fait rien
-}
-
-void KingTower::draw(RenderWindow& renderWindow) const
-{
-    if (isActive())
-    {
-        GameObject::draw(renderWindow);
-        healthGauge.draw(renderWindow);
-    }
+    // Hérité de Tower
 }
 
 void KingTower::notify(Subject* subject)

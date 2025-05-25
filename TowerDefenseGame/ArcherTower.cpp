@@ -57,14 +57,6 @@ void ArcherTower::updateSpell(float deltaTime)
     }
 }
 
-void ArcherTower::draw(sf::RenderWindow& renderWindow) const
-{
-    if (isActive()) {
-        GameObject::draw(renderWindow);
-        healthGauge.draw(renderWindow);
-    }
-}
-
 void ArcherTower::notify(Subject* subject)
 {
     Tower::notify(subject);

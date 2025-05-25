@@ -90,8 +90,8 @@ protected:
 	};
 
 	// Demons
-	static const int MAX_DEMONS_AMOUNT = 10;
-	static const int MAX_DEMONS_ON_SCREEN = 10;
+	static const int MAX_DEMONS_AMOUNT = 50;
+	static const int MAX_DEMONS_ON_SCREEN = 20;
 	int demonsAmount = 0;
 
 	View view;
@@ -122,8 +122,8 @@ protected:
     TowerEmplacement* selectedEmplacement = nullptr;
 
     // Tours
-    static const int MAX_ARCHER_TOWERS = 10;
-    static const int MAX_MAGE_TOWERS = 10;
+    static const int MAX_ARCHER_TOWERS = 9;
+    static const int MAX_MAGE_TOWERS = 9;
 
     ArcherTower archerTowers[MAX_ARCHER_TOWERS];
     MageTower mageTowers[MAX_MAGE_TOWERS];
@@ -131,9 +131,9 @@ protected:
 
     // Projectiles
     static const int MAX_FIREBALL_AMOUNT = 20;
-    static const int MAX_TOWERS_PROJECTILES = 10;
+    static const int MAX_TOWERS_PROJECTILES = 9;
 
-    Projectile fireballs[MAX_DEMONS_ON_SCREEN];
+    Projectile fireballs[MAX_FIREBALL_AMOUNT];
     Projectile arrows[MAX_TOWERS_PROJECTILES];
     Projectile blasts[MAX_TOWERS_PROJECTILES];
 

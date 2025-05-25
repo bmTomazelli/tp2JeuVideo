@@ -126,14 +126,6 @@ void MageTower::handleAnimation(float deltaTime)
     }
 }
 
-void MageTower::draw(RenderWindow& renderWindow) const
-{
-    if (isActive()) {
-        GameObject::draw(renderWindow);
-        healthGauge.draw(renderWindow);
-    }
-}
-
 void MageTower::notify(Subject* subject)
 {
     Tower::notify(subject);

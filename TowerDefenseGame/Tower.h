@@ -23,7 +23,7 @@ public:
     Tower();
     virtual ~Tower();
     virtual void update(float deltaTime, std::vector<Demon*>& demons) = 0;
-    virtual void draw(RenderWindow& renderWindow) const;
+    void draw(RenderWindow& renderWindow) const;
     void takeDamage(int damage);
     void notify(Subject* subject) override;
     void manageRecoil(const float deltaTime);

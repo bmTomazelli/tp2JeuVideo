@@ -221,6 +221,8 @@ void SceneGame::draw()
 	//Toujours important d'effacer l'écran précédent
 	renderWindow.draw(map);
 
+    std::cout << "Is Occupied : " << listTowerEmplacements[0]->isOccupied() << "\n";
+    std::cout << "Is Active : " << listTowerEmplacements[0]->isActive() << "\n";
 	for (TowerEmplacement* towerEmplacement : listTowerEmplacements)
     {
         towerEmplacement->draw(renderWindow);
@@ -542,8 +544,10 @@ void SceneGame::updateScore(int dmgPoints)
         this->highScore = score;
 }
 
-void SceneGame::updateKill() {
+void SceneGame::updateKill() 
+{
     this->kills++;
+    this->mana += MANA_GAIN_AFTER_KILL;
 }
 
 void SceneGame::handleProjectilesOnScreen()

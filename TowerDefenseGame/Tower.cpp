@@ -14,8 +14,10 @@ Tower::~Tower()
 
 void Tower::draw(RenderWindow& renderWindow) const
 {
-    if (active)
+    if (isActive()) {
         GameObject::draw(renderWindow);
+        healthGauge.draw(renderWindow);
+    }
 }
 
 void Tower::takeDamage(int damage)

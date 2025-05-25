@@ -31,13 +31,13 @@ public:
     void moveToTarget(const float deltaTime);
     GameObject* getTarget() const;
     const int generateRandomDamage() const;
+    void deactivateProjectile();
 
     //methodes pour le score
     void setSceneGame(SceneGame* sceneGame);
     void notifyDamageForScore(int damage);
 
 private:
-    void deactivateProjectile();
     void checkCollisionWithTarget();
 
     const float ARROW_SPEED = 15.0f;
