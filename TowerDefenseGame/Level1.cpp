@@ -2,7 +2,7 @@
 #include "ContentPipeline.h"
 #include "Subject.h"
 
-Level1::Level1(RenderWindow& renderWindow, Event& event, int currentWave) : SceneGame::SceneGame(renderWindow, event, currentWave)
+Level1::Level1(RenderWindow& renderWindow, Event& event, int currentWave, int score, int highScore) : SceneGame::SceneGame(renderWindow, event, currentWave, score, highScore)
 {
 }
 
@@ -17,8 +17,7 @@ bool Level1::init()
 	map.setTexture(ContentPipeline::getInstance().getMapTexture(map1));
 
     initTowersEmplacements();
-    kingTower.init();
-    kingTower.spawn(Vector2f(1138, 600));
+    kingTower.spawn(Vector2f(1138, 564));
 
     Subject::addObserver(&kingTower);
 

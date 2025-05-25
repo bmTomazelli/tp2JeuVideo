@@ -1,6 +1,13 @@
 #include "Demon.h"
+#include "Constants.h"
 #include "ContentPipeline.h"
 #include "TwoPathWaypoint.h"
+#include "Tower.h"
+#include "TowerEmplacement.h"
+#include "Plague.h"
+#include "SacredLight.h"
+#include "Projectile.h"
+#include "SceneGame.h"
 #include <iostream>
 
 Demon::Demon()
@@ -13,7 +20,7 @@ Demon::~Demon()
 	delete[] imagesDying;
 }
 
-void Demon::init(const int wave)
+void Demon::init(const int wave) 
 {
 	setTexture(ContentPipeline::getInstance().getDemonTexture());
 
@@ -47,25 +54,74 @@ void Demon::init(const int wave)
 	setTextureRect(imagesFlying[0]);
 	setOrigin(imageWidth / 2, imageHeight / 2);
 
+    targetDetectionBox = FloatRect(
+        getPosition().x - TARGET_DETECTION_BOX_SIZE / 2,
+        getPosition().y - TARGET_DETECTION_BOX_SIZE / 2,
+        TARGET_DETECTION_BOX_SIZE,
+        TARGET_DETECTION_BOX_SIZE
+    );
+
 	Subject::addObserver(this);
+	healthGauge.init();
 
 	this->wave = wave;
 	speed = DEFAULT_DEMON_SPEED + (SPEED_WAVE_MULTIPLIER * wave);
+
+    recoil = MAX_RECOIL - 0.05f * wave;
+    recoilTimer = recoil;
 	setDemonState(DemonState::FLYING);
 }
 
 void Demon::update(const float deltaTime)
 {
-	if (isActive())
-	{
-		checkStatus();
-		manageMovement(deltaTime);
-		manageAnimation(deltaTime);
-	}
+	checkStatus();
+    manageRecoil(deltaTime);
+    manageSpellEffect(deltaTime);
+	manageMovement(deltaTime);
+	manageAnimation(deltaTime);
 }
 
 void Demon::notify(Subject* subject)
 {
+    Spell* spell = dynamic_cast<Spell*>(subject);
+    if (spell)
+    {
+        float dx = spell->getPosition().x - getPosition().x;
+        float dy = spell->getPosition().y - getPosition().y;
+        float distSq = dx * dx + dy * dy;
+
+        if (distSq > spell->getRange() * spell->getRange()) return;
+
+        spellTimer = spell->getDuration();
+
+        if (spell->getType() == SpellType::sacredLight)
+        {
+            SacredLight* sl = static_cast<SacredLight*>(spell);
+
+            speed /= sl->getSpeedMultiplier();
+            setColor(sl->getColor());
+        }
+        else if (spell->getType() == SpellType::plague)
+        {
+            Plague* plague = static_cast<Plague*>(spell);
+
+            loseHealth(plague->getDamageAmount()); // initial damage
+            setColor(plague->getColor());
+            plagueDamageMultiplier = plague->getDamageMultiplier(); // ex: 2.0f
+            plagueTickTimer = 0.f;
+        }
+    }
+
+    if (typeid(*subject) == typeid(Projectile))
+    {
+        Projectile* projectile = static_cast<Projectile*>(subject);
+        if (projectile && projectile->getTarget() == this)
+        {
+            int towerDamage = projectile->generateRandomDamage();
+            loseHealth(towerDamage);
+            sceneGame->updateScore(towerDamage);
+        }
+    }
 }
 
 void Demon::assignWaypointToFollow(Waypoint* waypoint)
@@ -76,9 +132,24 @@ void Demon::assignWaypointToFollow(Waypoint* waypoint)
 void Demon::spawnDemon(const Vector2f position)
 {
 	setPosition(position);
+	healthGauge.setPosition(Vector2f(getPosition().x - HEALTHGAUGE_OFFSET_X, getPosition().y - HEALTHGAUGE_OFFSET_Y));
 	setDemonState(DemonState::FLYING);
 	health = MAX_DEMON_HEALTH;
+    healthGauge.reset();
+    recoilTimer = recoil;
+    resetStatus();
 	activate();
+}
+
+void Demon::loseHealth(const int damage)
+{
+	health -= damage;
+	healthGauge.removeHealth((health * 100.0f / MAX_DEMON_HEALTH) / 100.0f);
+}
+
+void Demon::prepareShooting()
+{
+    recoilTimer = 0.0f;
 }
 
 Waypoint* Demon::getWaypointToFollow() const
@@ -86,11 +157,39 @@ Waypoint* Demon::getWaypointToFollow() const
 	return waypointToFollow;
 }
 
+FloatRect Demon::getTargetDetectionBox() const
+{
+	return targetDetectionBox;
+}
+
+const float Demon::getRangeOfFire() const
+{
+    return rangeOfFire;
+}
+
+void Demon::resetStatus()
+{
+    spellTimer = 0.0f;
+}
+
+void Demon::setSceneGame(SceneGame* sceneGame)
+{
+    this->sceneGame = sceneGame;
+}
+
 void Demon::checkStatus()
 {
-	if (health < 0 && !isDying()) setDemonState(DemonState::DYING);
+    if (health <= 0 && !isDying()) 
+    {        
+        setDemonState(DemonState::DYING);
+    }
 
-	if (isDying() && currentImage == ANIM_DEMON - 1) deactivate();
+    if (isDying() && currentImage == ANIM_DEMON - 1)
+    {
+        sceneGame->updateScore(SCORE_DEAD_DEMON);
+        sceneGame->updateKill();
+        deactivate();
+    }
 }
 
 void Demon::manageMovement(const float deltaTime)
@@ -101,7 +200,11 @@ void Demon::manageMovement(const float deltaTime)
 		
 	// Déplacement
 	moveAngle = atan2f((waypointToFollow->getPosition().y - getPosition().y), (waypointToFollow->getPosition().x - getPosition().x));
-	move(cos(moveAngle) * deltaTime * speed, sin(moveAngle) * deltaTime * speed);
+
+	float offsetX = cos(moveAngle) * deltaTime * speed;
+	float offsetY = sin(moveAngle) * deltaTime * speed;
+	move(offsetX, offsetY);
+	healthGauge.move(offsetX, offsetY);
 
 	// Réflection
 	if (cos(moveAngle) >= 0)
@@ -114,6 +217,41 @@ void Demon::manageMovement(const float deltaTime)
 	}
 
 	checkCollisionWithWaypoint();
+}
+
+void Demon::manageRecoil(const float deltaTime)
+{
+    if (recoilTimer >= recoil)
+    {
+        recoilTimer = recoil;
+        return;
+    }
+
+    recoilTimer += deltaTime;
+}
+
+void Demon::manageSpellEffect(const float deltaTime)
+{
+    if (spellTimer > 0.0f) {
+        spellTimer -= deltaTime;
+
+        if (plagueDamageMultiplier > 1.0f) {
+            plagueTickTimer += deltaTime;
+
+            if (plagueTickTimer >= 1.0f) // hit a chaque 1 seconde
+            {
+                loseHealth(1 * plagueDamageMultiplier); //hit initiel
+                plagueTickTimer = 0.0f; //resset pour le prochain tick de 1 seconde
+            }
+        }
+    }
+    else
+    {
+        setColor(sf::Color::White);
+        plagueDamageMultiplier = 1.0f;
+
+        speed = DEFAULT_DEMON_SPEED + (SPEED_WAVE_MULTIPLIER * wave);
+    }
 }
 
 void Demon::checkCollisionWithWaypoint()
@@ -159,6 +297,11 @@ void Demon::runAnimation(const float deltaTime, const float timePerFrame, const 
 	}
 }
 
+void Demon::drawDemonHealth(RenderWindow& renderWindow) const
+{
+	healthGauge.draw(renderWindow);
+}
+
 void Demon::setDemonState(DemonState animationState)
 {
 	this->demonState = animationState;
@@ -169,4 +312,9 @@ void Demon::setDemonState(DemonState animationState)
 bool Demon::isDying() const
 {
 	return demonState == DemonState::DYING;
+}
+
+bool Demon::canShoot() const
+{
+    return recoilTimer == recoil;
 }

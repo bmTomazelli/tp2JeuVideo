@@ -37,6 +37,7 @@ public:
 	const Texture& getRunesTexture() const;
 	const Texture& getSacredLightTexture() const;
 	const Texture& getPlagueTexture() const;
+    const Texture& getMagicCircleTexture() const;
 
 	const Texture& getArcherTowerTexture() const;
 	const Texture& getKingTowerTexture() const;
@@ -83,6 +84,7 @@ private:
 	Texture runesTexture;
 	Texture plagueTexture;
 	Texture sacredLightTexture;
+    Texture magicCircleTexture;
 
 	Texture archerTowerTexture;
 	Texture kingTowerTexture;

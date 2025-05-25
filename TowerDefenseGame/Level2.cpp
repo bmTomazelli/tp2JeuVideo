@@ -1,7 +1,7 @@
 #include "Level2.h"
 #include "ContentPipeline.h"
 
-Level2::Level2(RenderWindow& renderWindow, Event& event, int currentWave) : SceneGame::SceneGame(renderWindow, event, currentWave)
+Level2::Level2(RenderWindow& renderWindow, Event& event, int currentWave, int score, int highScore) : SceneGame::SceneGame(renderWindow, event, currentWave, score, highScore)
 {
 }
 
@@ -9,12 +9,12 @@ bool Level2::init()
 {
 	waypointsAmount = LEVEL2_WAYPOINTS_AMOUNT;
 	demonDefaultPosition = LEVEL2_DEMON_POSITION;
+    towerEmplacementAmount = MAX_NUMBER_OF_TOWERS;
 
 	if (!SceneGame::init()) return false;
 	map.setTexture(ContentPipeline::getInstance().getMapTexture(map2));
 
-    kingTower.setPosition(Vector2f(1138, 564));
-    kingTower.activate();
+    kingTower.spawn(Vector2f(1138, 600));
     Subject::addObserver(&kingTower);
 
 	return true;
@@ -92,4 +92,14 @@ Waypoint* Level2::getNextWaypointForDemon(Demon* demon) const
 	}
 
 	return SceneGame::getNextWaypointForDemon(demon);
+}
+
+void Level2::initTowersEmplacements()
+{
+    for (int i = 0; i < towerEmplacementAmount; ++i)
+    {
+        TowerEmplacement* towerEmplacement = new TowerEmplacement();
+        towerEmplacement->init(TOWER_POSITIONS[i]);
+        listTowerEmplacements.push_back(towerEmplacement);
+    }
 }

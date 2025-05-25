@@ -17,7 +17,7 @@ void Waypoint::init(const Vector2f position)
 {
 	const Texture& texture = ContentPipeline::getInstance().getWaypointTexture();
 	Sprite::setTexture(texture);
-	Sprite::setOrigin(texture.getSize().x / 2, texture.getSize().y / 2);
+	Sprite::setOrigin(texture.getSize().x / 2.0f, texture.getSize().y / 2.0f);
 
 	setPosition(position);
 }

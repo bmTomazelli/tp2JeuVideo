@@ -1,5 +1,6 @@
 #include "ArcherTower.h"
 #include "ContentPipeline.h"
+#include <iostream>
 
 ArcherTower::ArcherTower() {}
 
@@ -12,10 +13,12 @@ void ArcherTower::init()
     setOrigin(ARCHER_WIDTH / 2.f, ARCHER_HEIGHT / 2.f);
 
     range = TOWER_RANGE;
-    hp = DEFAULT_TOWER_HP;
+    totalHp = DEFAULT_TOWER_HP;
+    hp = totalHp;
 
-    fireCooldown = ARCHER_FIRE_RATE;
-    fireTimer = 0.f;
+    healthGauge.init();
+    recoil = ARROW_RECOIL;
+    recoilTimer = recoil;
 
     float radius = static_cast<float>(ARCHER_WIDTH) * TOWER_COLLISION_RADIUS_SCALE;
     setCollisionCircleRadius(radius);
@@ -24,6 +27,12 @@ void ArcherTower::init()
 void ArcherTower::spawn(const sf::Vector2f& position)
 {
     setPosition(position);
+    resetStatus();
+    hp = DEFAULT_TOWER_HP;
+    recoil = ARROW_RECOIL;
+    recoilTimer = recoil;
+    healthGauge.reset();
+    healthGauge.setPosition(Vector2f(getPosition().x - 30.f, getPosition().y - 75.f));
     activate();
 }
 
@@ -31,31 +40,32 @@ void ArcherTower::update(float deltaTime, std::vector<Demon*>& demons)
 {
     if (!isActive()) return;
 
-    fireTimer += deltaTime;
+    updateStatus(deltaTime);
+    updateSpell(deltaTime);
+    manageRecoil(deltaTime);
+}
 
-    if (fireTimer >= fireCooldown)
+void ArcherTower::updateSpell(float deltaTime)
+{
+    if (hitBySpell)
     {
-        Demon* target = findNearestTarget(demons);
-        if (target)
+        if (spellTimer > 0.f)
         {
-            shoot(target);
-            fireTimer = 0.f;
+            setColor(spellColor);
+            spellTimer -= deltaTime;
+        }
+        else
+        {
+            fireSpell = 1.f;
+            setColor(sf::Color::White);
+            recoil = ARROW_RECOIL;
+            recoilTimer = 0.0f;
+            hitBySpell = false;
         }
     }
 }
 
-void ArcherTower::shoot(Demon* target)
-{
-    // Criar arrow, exibir som, etc.
-}
-
-void ArcherTower::draw(sf::RenderWindow& renderWindow) const
-{
-    if (isActive())
-        GameObject::draw(renderWindow);
-}
-
 void ArcherTower::notify(Subject* subject)
 {
-    // Reagir a spell se necessário
+    Tower::notify(subject);
 }

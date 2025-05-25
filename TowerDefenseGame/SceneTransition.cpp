@@ -1,9 +1,11 @@
 #include "SceneTransition.h"
 #include "ContentPipeline.h"
+#include <iostream>
 
-SceneTransition::SceneTransition(RenderWindow& renderWindow, Event& event) : Scene(renderWindow, event)
+SceneTransition::SceneTransition(RenderWindow& renderWindow, Event& event, int currentWave) : Scene(renderWindow, event)
 {
 	view = renderWindow.getDefaultView();
+	this->currentWave = currentWave;
 }
 
 Scene::scenes SceneTransition::run()
@@ -21,11 +23,17 @@ Scene::scenes SceneTransition::run()
 
 bool SceneTransition::init()
 {
-	message.setString("Wave 2");
-	message.setCharacterSize(80);
 	
-	//message.setString("Minons of the Dark Lord march on our lands.\n\n             Defend the King's Tower!\n\n                           Wave 1");
-	//message.setCharacterSize(60);
+	if (currentWave == 1)
+	{
+		message.setString("Minons of the Dark Lord march on our lands.\n\n             Defend the King's Tower!\n\n                           Wave 1");
+		message.setCharacterSize(60);
+	}
+	else
+	{
+		message.setString("Wave " + std::to_string(currentWave));
+		message.setCharacterSize(80);
+	}
 
 	message.setFont(ContentPipeline::getInstance().getComiciFont());
 	message.setColor(Color::White);
@@ -46,7 +54,13 @@ void SceneTransition::getInputs()
 
 void SceneTransition::update()
 {
+	timer += deltaTime;
 
+	if (timer >= TRANSITION_TIMER)
+	{
+		transitionToScene = Scene::scenes::GAME;
+		isRunning = false;
+	}
 }
 
 void SceneTransition::draw()

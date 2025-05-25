@@ -14,7 +14,12 @@ struct Inputs
 		mouseLeftButtonClicked = false;
 		toggleWaypoints = false;
         buildArcherTower = false;
-        buildMageTower = false;
+		buildMageTower = false;
+		castSacredLight = false;
+		castPlague = false;
+		activeActionChanged = false;
+		clickOnScreen = false;
+        togglePause = false;
 	}
 
 	Vector2f mousePosition;
@@ -22,4 +27,9 @@ struct Inputs
 	bool toggleWaypoints;
     bool buildArcherTower = false;
     bool buildMageTower = false;
+	bool castSacredLight = false;
+	bool castPlague = false;
+	bool activeActionChanged;
+	bool clickOnScreen;
+    bool togglePause;
 };

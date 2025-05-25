@@ -5,92 +5,170 @@
 #include "Level1.h"
 #include "Level2.h"
 #include "SceneEnd.h"
+#include <iostream>
+#include <fstream>
 
 
 Game::Game()
 {
-	//On place dans le contructeur ce qui permet ‡ la game elle-mÍme de fonctionner
+	//On place dans le contructeur ce qui permet √† la game elle-m√™me de fonctionner
 	renderWindow.create(VideoMode(SCREEN_WIDTH, SCREEN_HEIGHT, 32), "Tower Defense Game");  // , Style::Titlebar); / , Style::FullScreen);
-
-	//Synchonisation coordonnÈe ‡ l'Ècran!  Normalement 60 frames par secondes. ¿ faire absolument
-	//renderWindow.setVerticalSyncEnabled(true);  //De plus en plus d'Ècrans sont rafraichis ‡ plus de 60 frames par seconde, alors attention.
-	//renderWindow.setFramerateLimit(60);  //…quivalent... normalement, mais pas toujours. ¿ utiliser si la synchonisation de l'Ècran fonctionne mal.
-	//https://www.sfml-dev.org/tutorials/2.6/window-window.php
 
 	renderWindow.setKeyRepeatEnabled(false);
 	srand((int)time(0));
 	
-	//Nouveau: toujours la mÍme chose pour avoir un icon dans l'explorateur Windows
+	//Nouveau: toujours la m√™me chose pour avoir un icon dans l'explorateur Windows
 	icon.loadFromFile("Ressources\\Sprites\\Misc\\Icon.png");
 	renderWindow.setIcon(icon.getSize().x, icon.getSize().y, icon.getPixelsPtr());
 }
 
 int Game::run()
 {
-	if (!ContentPipeline::getInstance().loadContent()) return EXIT_FAILURE;
+    if (!ContentPipeline::getInstance().loadContent()) return EXIT_FAILURE;
 
-	//Un enum et un pointeur de scene pour faire la manipulation de scËne
-	Scene::scenes sceneSelector = Scene::scenes::LEVEL1;
-	Scene* activeScene = nullptr; //Pointeur de la super-classe, peut pointer sur n'importe quelle scËne
+    //Un enum et un pointeur de scene pour faire la manipulation de sc√®ne
+    Scene::scenes sceneSelector = Scene::scenes::TITLE;
+    Scene::levels levelSelector = Scene::levels::LEVEL1;
 
-	//Les variables de passage d'information entre scËnes devraient Ítre dÈclarÈs ici
-	int currentWave = 1;
+    Scene* activeScene = nullptr; //Pointeur de la super-classe, peut pointer sur n'importe quelle sc√®ne
 
-	while (true)
-	{
-		//Seules conditions de sortie de toute l'app, une pour les sorties normales, une pour les erreurs
-		//On est au seul point de sortie
-		if (sceneSelector == Scene::scenes::EXIT) return EXIT_SUCCESS;
-		if (sceneSelector == Scene::scenes::FAIL) return EXIT_FAILURE;
+    //On essaie de d√©s√©rialiser les scores
+    deserializeScores();
 
-		//Vous allez ajouter d'autre scËnes, alors elles devront
-		//Ítre ajoutÈes ici
-		switch (sceneSelector)
-		{
-		case Scene::scenes::TITLE:
-			//Les deux attributs sont rÈcessaire et passÈs par rÈfÈrence
-			activeScene = new SceneTitle(renderWindow, event);
-			break;
-		case Scene::scenes::TRANSITION:
-			//Les deux attributs sont rÈcessaire et passÈs par rÈfÈrence
-			activeScene = new SceneTransition(renderWindow, event);
-			break;
-		case Scene::scenes::LEVEL1:
-			//Les deux attributs sont rÈcessaire et passÈs par rÈfÈrence
-			activeScene = new Level1(renderWindow, event, currentWave);
-			break;
-		case Scene::scenes::LEVEL2:
-			activeScene = new Level2(renderWindow, event, currentWave);
-			break;
-		case Scene::scenes::END:
-			activeScene = new SceneEnd(renderWindow, event);
-			break;
-		}
-		
-		if (activeScene->init()) //Si l'initilisation s'est bien passÈ, on entre dans ce bloc
-		{
-			//Run est la boucle de jeu de la scËne
-			//¿ la fin de cette mÈthode, elle retourne la scËne
-			//Laquelle on transition
-			sceneSelector = activeScene->run();
+    //Les variables de passage d'information entre sc√®nes devraient √™tre d√©clar√©s ici
+    int currentWave = 1;
+    int score = 0;
+    int highScore = highScoreData.score;
+    int highWave = highScoreData.wave;
+    bool victory = false;
 
-			//¿ la fin d'une scËne, s'il y a des sauvegardes ‡ faire
-			//C'est possible de les faire l‡.
-			/*SceneGame* tempScene = dynamic_cast<SceneGame*>(activeScene);
-			if (tempScene != nullptr)//Donc si le cast a rÈussi.
-			{
+    while (true)
+    {
+        //Seules conditions de sortie de toute l'app, une pour les sorties normales, une pour les erreurs
+        //On est au seul point de sortie
+        if (sceneSelector == Scene::scenes::EXIT) return EXIT_SUCCESS;
+        if (sceneSelector == Scene::scenes::FAIL) return EXIT_FAILURE;
 
-			}*/			
-		}
-		else //Si l'initialisation rate (exemple: pour assets mal chargÈs), on fail et on nettoie ce qui est ‡ nettoyer
-		{
-			sceneSelector = Scene::scenes::FAIL;
-			//clean-up Èventuel ‡ faire pour s'assurer 
-			//de ne pas avoir de leak (malgrÈ l'Èchec)
-		}		
+        //Vous allez ajouter d'autre sc√®nes, alors elles devront
+        //√™tre ajout√©es ici
+        switch (sceneSelector)
+        {
+        case Scene::scenes::TITLE:
+            //Les deux attributs sont r√©cessaire et pass√©s par r√©f√©rence
+            activeScene = new SceneTitle(renderWindow, event);
+            break;
+        case Scene::scenes::TRANSITION:
+            //Les deux attributs sont r√©cessaire et pass√©s par r√©f√©rence
+            activeScene = new SceneTransition(renderWindow, event, currentWave);
+            break;
+        case Scene::scenes::GAME:
+            if (levelSelector == Scene::levels::LEVEL1)
+            {
+                activeScene = new Level1(renderWindow, event, currentWave, score, highScore);
+                break;
+            }
+            else if (levelSelector == Scene::levels::LEVEL2)
+            {
+                activeScene = new Level2(renderWindow, event, currentWave, score, highScore);
+                break;
+            }
+        case Scene::scenes::END:
+            activeScene = new SceneEnd(renderWindow, event, score, highScore, currentWave, highWave, victory);
+            break;
+        }
 
-		//NÈcessaire tout ce qui est crÈe avec new doit Ítre effacÈ.
-		delete activeScene;
-		activeScene = nullptr;
-	}
+        if (activeScene->init()) 
+        {
+            sceneSelector = activeScene->run();
+
+            SceneGame* tempScene = dynamic_cast<SceneGame*>(activeScene);
+
+            if (tempScene != nullptr)
+            {
+                score = tempScene->getScore();
+                highScore = tempScene->getHighScore();
+
+                if (tempScene->isGameEnded()) {//verifie si le score actuel est plus haut que le score enregistr√©
+                    saveScore(score, currentWave);
+
+                    if (currentWave == MAX_WAVES)
+                    {
+                        victory = tempScene->isVictory();
+                    }
+                    else
+                    {
+                        currentWave++;
+                        if (typeid(*tempScene) == typeid(Level1))
+                            levelSelector = Scene::levels::LEVEL2;
+                        else if (typeid(*tempScene) == typeid(Level2))
+                            levelSelector = Scene::levels::LEVEL1;
+                    }
+                }
+            }
+
+            delete activeScene;
+            activeScene = nullptr;
+        }
+        else
+        {
+            sceneSelector = Scene::scenes::FAIL;
+        }
+    }
 }
+
+void Game::serializeScores()
+{
+    // Cr√©er la structure binaire pour la sauvegarde
+    ScoreBinary scoreBinary;
+    scoreBinary.scores[0] = highScoreData;
+
+    // Convertir en tableau d'octets pour la s√©rialisation
+    char binaryData[sizeof(ScoreBinary)];
+    memcpy(binaryData, &scoreBinary, sizeof(ScoreBinary));
+
+    // √âcrire dans le fichier
+    std::ofstream file(dataFile, std::ios::binary);
+    if (file.is_open())
+    {
+        file.write(binaryData, sizeof(ScoreBinary));
+        file.close();
+    }
+}
+
+
+bool Game::saveScore(int score, int wave) {
+    //On sauvegarde le score dans la structure
+    if (score > highScoreData.score) {
+    highScoreData.score = score;
+    highScoreData.wave = wave;
+
+    //On s√©rialise les scores
+    serializeScores();
+    return true;
+    }
+
+    return false;
+}
+
+bool Game::deserializeScores()
+{
+    std::ifstream file(dataFile, std::ios::binary);
+    if (!file.is_open())
+        return false;
+
+    ScoreBinary scoreBinary = {}; // R√©initialise la struct
+
+    // V√©rifie si la taille du fichier est bonne
+    file.read(reinterpret_cast<char*>(&scoreBinary), sizeof(ScoreBinary));
+    if (!file)
+    {
+        // Erreur dans la lecture (Fichier trop petit)
+        file.close();
+        return false;
+    }
+
+    file.close();
+    highScoreData = scoreBinary.scores[0];
+    return true;
+}
+

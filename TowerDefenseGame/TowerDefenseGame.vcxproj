@@ -28,7 +28,10 @@
     <ClInclude Include="GameObject.h" />
     <ClInclude Include="KingTower.h" />
     <ClInclude Include="MageTower.h" />
+    <ClInclude Include="Plague.h" />
     <ClInclude Include="resource.h" />
+    <ClInclude Include="HealthGauge.h" />
+    <ClInclude Include="SacredLight.h" />
     <ClInclude Include="TwoPathWaypoint.h" />
     <ClInclude Include="Hud.h" />
     <ClInclude Include="Inputs.h" />
@@ -54,12 +57,15 @@
     <ClCompile Include="Game.cpp" />
     <ClCompile Include="ContentPipeline.cpp" />
     <ClCompile Include="GameObject.cpp" />
+    <ClCompile Include="HealthGauge.cpp" />
     <ClCompile Include="Hud.cpp" />
     <ClCompile Include="KingTower.cpp" />
     <ClCompile Include="Level2.cpp" />
     <ClCompile Include="MageTower.cpp" />
     <ClCompile Include="Main.cpp" />
+    <ClCompile Include="Plague.cpp" />
     <ClCompile Include="Projectile.cpp" />
+    <ClCompile Include="SacredLight.cpp" />
     <ClCompile Include="SceneEnd.cpp" />
     <ClCompile Include="SceneGame.cpp" />
     <ClCompile Include="Level1.cpp" />
@@ -73,6 +79,7 @@
     <ClCompile Include="Waypoint.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <Image Include="..\..\..\..\..\..\..\breno\Pictures\MagicCircle.png" />
     <Image Include="Ressources\Sprites\Characters\DarkKnight.png" />
     <Image Include="Ressources\Sprites\Characters\Demon.png" />
     <Image Include="Ressources\Sprites\Characters\Knight.png" />

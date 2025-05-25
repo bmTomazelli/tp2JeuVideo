@@ -16,13 +16,17 @@ void MageTower::init()
     target = nullptr;
 
     range = TOWER_RANGE;
-    hp = DEFAULT_TOWER_HP;
 
-    fireCooldown = MAGE_FIRE_RATE;
-    fireTimer = 0.f;
+    totalHp = DEFAULT_TOWER_HP;
+    hp = totalHp;
+
+    recoil = BLAST_RECOIL;
+    recoilTimer = recoil;
 
     float radius = static_cast<float>(MAGE_FRAME_WIDTH) * TOWER_COLLISION_RADIUS_SCALE;
     setCollisionCircleRadius(radius);
+
+    healthGauge.init();
 
     setTextureRect(animationFrames[0]);
     setOrigin(MAGE_FRAME_WIDTH / 2.f, MAGE_FRAME_HEIGHT / 2.f);
@@ -31,9 +35,14 @@ void MageTower::init()
 void MageTower::spawn(const Vector2f& position)
 {
     setPosition(position);
+    resetStatus();
+    hp = DEFAULT_TOWER_HP;
+    recoil = BLAST_RECOIL;
+    recoilTimer = recoil;
+    healthGauge.reset();
+    healthGauge.setPosition(Vector2f(getPosition().x - 30.f, getPosition().y - 75.f));
     activate();
 }
-
 
 void MageTower::setupAnimation()
 {
@@ -42,7 +51,7 @@ void MageTower::setupAnimation()
         animationFrames.emplace_back(IntRect(i * MAGE_FRAME_WIDTH, 0, MAGE_FRAME_WIDTH, MAGE_FRAME_HEIGHT));
     }
 
-    frameDuration = { 0.6f,0.2f,0.2f };
+    frameDuration = { 0.0f,0.2f,0.1f };
     setTextureRect(animationFrames[0]);
 }
 
@@ -51,36 +60,71 @@ void MageTower::update(float deltaTime, std::vector<Demon*>& demons)
 {
     if (!isActive()) return;
 
-    takeDamage(2);
+    updateStatus(deltaTime);
+    updateSpell(deltaTime);
+    manageRecoil(deltaTime);
+    
+    if (canShoot()) handleTargeting(demons);
+    
+    handleAnimation(deltaTime);
+}
 
+void MageTower::updateSpell(float deltaTime)
+{
+    if (hitBySpell)
+    {
+        if (spellTimer > 0.f)
+        {
+            setColor(spellColor);
+            spellTimer -= deltaTime;
+        }
+        else
+        {
+            fireSpell = 1.0f;
+            setColor(sf::Color::White);
+            recoil = BLAST_RECOIL;
+            recoilTimer = 0.0f;
+            hitBySpell = false;
+        }
+    }
+}
+
+void MageTower::handleTargeting(const std::vector<Demon*>& demons)
+{
     if (!animating)
     {
         target = findNearestTarget(demons);
         if (target)
         {
             float dx = target->getPosition().x - getPosition().x;
-            if(dx<=0)
-                setScale(1.f, 1.f);
-            else
-                setScale(-1.f, 1.f);
+            setScale((dx <= 0.f) ? 1.f : -1.f, 1.f);
 
             animating = true;
             currentFrame = 0;
             animationTimer = 0.f;
         }
     }
+}
 
+void MageTower::handleAnimation(float deltaTime)
+{
     if (animating)
     {
-        animationTimer += deltaTime;
+        animationTimer += deltaTime * fireSpell;
+
         if (animationTimer >= frameDuration[currentFrame])
         {
             animationTimer = 0.f;
             currentFrame++;
 
+            if (currentFrame == animationFrames.size() - 1)
+            {
+                notifyAllObservers();
+                prepareShooting();
+            }
+
             if (currentFrame >= animationFrames.size())
             {
-                shoot();
                 animating = false;
                 currentFrame = 0;
             }
@@ -90,23 +134,12 @@ void MageTower::update(float deltaTime, std::vector<Demon*>& demons)
     }
 }
 
-void MageTower::shoot()
-{
-    //projectile
-}
-
-void MageTower::draw(RenderWindow& renderWindow) const
-{
-    if (isActive())
-        GameObject::draw(renderWindow);
-}
-
 void MageTower::notify(Subject* subject)
 {
-   //reaction aux spells
+    Tower::notify(subject);
 }
 
-void MageTower::setLife()
+Demon* MageTower::getTarget() const
 {
-    hp = 0;
+    return target;
 }

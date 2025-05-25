@@ -1,6 +1,7 @@
 #include "Hud.h"
+#include <iostream>
 
-void Hud::hudInit(const Texture& hudMaskTexture, const Font& font)
+void Hud::hudInit(const Texture& hudMaskTexture, const Font& font, int currentWave)
 {
 	hudMask.setTexture(hudMaskTexture);
 
@@ -8,7 +9,6 @@ void Hud::hudInit(const Texture& hudMaskTexture, const Font& font)
 	specialStateText.setCharacterSize(25);
 	specialStateText.setFillColor(Color::White);
 	specialStateText.setPosition(TEXT_POSITION_X, 10);
-	specialStateText.setString("Instructions diverses ici!");
 
 	//Utilisation sans honte du constructeur de copie
 	manaText = specialStateText;
@@ -23,8 +23,7 @@ void Hud::hudInit(const Texture& hudMaskTexture, const Font& font)
 	scoreText.setPosition(TEXT_POSITION_X, 290);
 	highScoreText.setPosition(TEXT_POSITION_X, 330);
 
-
-	waveText.setString("Wave - 1");
+	waveText.setString("Wave - " + std::to_string(currentWave));
 	manaText.setString("Mana - 0");
 	killsText.setString("Kills - 0");
 	scoreText.setString("Score - 0");
@@ -45,12 +44,34 @@ void Hud::hudInit(const Texture& hudMaskTexture, const Font& font)
 	instructionTexts[5].setString("P: Pause");
 
 	specialStateText.setCharacterSize(35);
+
+	pressCommandText = specialStateText;
+	pressCommandText.setPosition(TEXT_POSITION_X, 60);
+
+    pauseText = specialStateText;
+    pauseText.setString("Pause");
+    pauseText.setCharacterSize(35);
+    pauseText.setPosition(10, 10);
+}
+
+void Hud::updateHud(int mana, int kills, int score, int highScore)
+{
+	manaText.setString("Mana - " + std::to_string(mana));
+	killsText.setString("Kills - " + std::to_string(kills));
+	scoreText.setString("Score - " + std::to_string(score));
+	highScoreText.setString("HighScore - " + std::to_string(highScore));
 }
 
 void Hud::draw(sf::RenderWindow& renderWindow)
 {
+    if (isInPause)
+    {
+        renderWindow.draw(pauseText);
+    }
+
 	renderWindow.draw(hudMask);
 	renderWindow.draw(specialStateText);
+	renderWindow.draw(pressCommandText);
 	renderWindow.draw(manaText);
 	renderWindow.draw(scoreText);
 	renderWindow.draw(killsText);
@@ -59,4 +80,35 @@ void Hud::draw(sf::RenderWindow& renderWindow)
 
 	for (int i = 0; i < INSTRUCTIONS_NUMBER; i++)
 		renderWindow.draw(instructionTexts[i]);
+}
+
+void Hud::togglePause()
+{
+    if (isInPause)
+        isInPause = false;
+    else
+        isInPause = true; 
+}
+
+void Hud::handleActiveAction(const ActiveAction activeAction)
+{
+    resetColors();
+    instructionTexts[activeAction + 1].setColor(Color(212, 175, 55, 255));
+}
+
+void Hud::changeToEndGameHud(bool isVictory)
+{
+	endGame = true;
+	if (isVictory)
+		specialStateText.setString("Victory!");
+	else
+		specialStateText.setString("Game Over!");
+
+	pressCommandText.setString("Press Enter to Continue");
+}
+
+void Hud::resetColors()
+{
+    for (int i = 0; i < INSTRUCTIONS_NUMBER; i++)
+        instructionTexts[i].setColor(Color::White);
 }
