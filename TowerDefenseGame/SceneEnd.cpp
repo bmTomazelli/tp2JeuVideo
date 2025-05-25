@@ -1,12 +1,13 @@
 #include "SceneEnd.h"
 #include "ContentPipeline.h"
 
-SceneEnd::SceneEnd(RenderWindow& renderWindow, Event& event, int score, int highScore, int waveAmount) : Scene(renderWindow, event)
+SceneEnd::SceneEnd(RenderWindow& renderWindow, Event& event, int score, int highScore, int waveAmount, bool victory) : Scene(renderWindow, event)
 {
 	view = renderWindow.getDefaultView();
 	this->score = score;
 	this->highScore = highScore;
 	this->waveAmount = waveAmount;
+    this->isVictory = victory;
 }
 
 Scene::scenes SceneEnd::run()

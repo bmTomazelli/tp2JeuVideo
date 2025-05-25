@@ -66,11 +66,28 @@ bool SceneGame::init()
     sacredLight.init();
     plague.init();
 
+    mana = DEFAULT_MANA_AMOUNT;
+
 	Subject::addObserver(this);
 
 	music.setVolume(DESIRED_MUSIC_VOLUME);
 	music.play();
 	return true;
+}
+
+const int SceneGame::getScore() const
+{
+    return score;
+}
+
+const int SceneGame::getHighScore() const
+{
+    return highScore;
+}
+
+const bool SceneGame::isVictory() const
+{
+    return !isKingDead;
 }
 
 void SceneGame::getInputs()
@@ -119,7 +136,7 @@ void SceneGame::getInputs()
             if (event.key.code == Keyboard::Enter)
             {
                 if (isGameEnd)
-                    isRunning = false;
+                    transitionToNextScene();
             }
 		}
 
@@ -145,7 +162,7 @@ void SceneGame::getInputs()
 
 void SceneGame::update()
 {
-	if (isKingDead) return;
+	if (isGameEnd) return;
 
     managePause();
 
@@ -191,6 +208,7 @@ void SceneGame::update()
 	hud.updateHud(mana, kills, score, highScore);
 
 	manageDemonsSpawning();
+    manageTimedManaGain();
 	manageGameOver();
 }
 
@@ -285,6 +303,8 @@ void SceneGame::manageActiveAction()
     switch (activeAction)
     {
     case BUILD_ARCHER:
+        if (mana < BUILD_ARCHER_TOWER_COST) return;
+
         selectedEmplacement = getTowerEmplacementFromClickedPosition(inputs.mousePosition);
 
         if (selectedEmplacement)
@@ -295,6 +315,7 @@ void SceneGame::manageActiveAction()
                 {
                     archerTowers[i].spawn(selectedEmplacement->getPosition());
                     selectedEmplacement->occupyTower(&archerTowers[i]);
+                    mana -= BUILD_ARCHER_TOWER_COST;
                     break;
                 }
             }
@@ -303,6 +324,8 @@ void SceneGame::manageActiveAction()
         selectedEmplacement = nullptr;
         break;
     case BUILD_MAGE:
+        if (mana < BUILD_MAGE_TOWER_COST) return;
+
         selectedEmplacement = getTowerEmplacementFromClickedPosition(inputs.mousePosition);
 
         if (selectedEmplacement)
@@ -313,6 +336,7 @@ void SceneGame::manageActiveAction()
                 {
                     mageTowers[i].spawn(selectedEmplacement->getPosition());
                     selectedEmplacement->occupyTower(&mageTowers[i]);
+                    mana -= BUILD_MAGE_TOWER_COST;
                     break;
                 }
             }
@@ -321,10 +345,22 @@ void SceneGame::manageActiveAction()
         selectedEmplacement = nullptr;
         break;
     case CAST_PLAGUE:
+        if (mana < CAST_PLAGUE_SPELL_COST) return;
+
         plague.activate(inputs.mousePosition);
+        
+        if (plague.isActive())
+            mana -= CAST_PLAGUE_SPELL_COST;
+
         break;
     case CAST_SACRED_LIGHT:
+        if (mana < CAST_SACRED_LIGHT_COST) return;
+
         sacredLight.activate(inputs.mousePosition);
+
+        if (sacredLight.isActive())
+            mana -= CAST_SACRED_LIGHT_COST;
+
         break;
     }
 }
@@ -410,6 +446,31 @@ void SceneGame::manageActiveActionChange()
     if (inputs.castSacredLight) activeAction = ActiveAction::CAST_SACRED_LIGHT;
 
     hud.handleActiveAction(activeAction);
+}
+
+void SceneGame::manageTimedManaGain()
+{
+    manaGainTimer += deltaTime;
+
+    if (manaGainTimer >= MANA_GAIN_TIMER)
+    {
+        mana += 1;
+        manaGainTimer = 0.0f;
+    }
+}
+
+void SceneGame::transitionToNextScene()
+{
+    if (isKingDead || currentWave == MAX_WAVES)
+    {
+        transitionToScene = Scene::scenes::END;
+    }
+    else
+    {
+        transitionToScene = Scene::scenes::TRANSITION;
+    }
+
+    isRunning = false;
 }
 
 void SceneGame::handleArchersAttackingDemons()

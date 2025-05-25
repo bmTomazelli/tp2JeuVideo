@@ -48,6 +48,10 @@ public:
 	scenes run() override;
 	bool init() override;
 
+    const int getScore() const;
+    const int getHighScore() const;
+    const bool isVictory() const;
+
 protected:
 	void getInputs() override;
 	void update() override;
@@ -58,11 +62,13 @@ protected:
     virtual void initTowersEmplacements() = 0;
     
     void manageActiveAction();
-	void manageWaypoints();
-	void manageDemonsSpawning();
+    void manageWaypoints();
+    void manageDemonsSpawning();
     void managePause();
-	void manageGameOver();
+    void manageGameOver();
     void manageActiveActionChange();
+    void manageTimedManaGain();
+    void transitionToNextScene();
 
     void handleArchersAttackingDemons();
     void handleDemonsTargets();
@@ -133,6 +139,8 @@ protected:
 	int kills = 0;
 	int score;
 	int highScore;
+
+    float manaGainTimer = 0.0f;
 
     bool isInPause = false;
 

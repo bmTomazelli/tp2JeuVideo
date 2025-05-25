@@ -39,6 +39,7 @@ int Game::run()
 	int currentWave = 1;
 	int score = 0;
 	int highScore = 0;
+    bool victory = false;
 
 	while (true)
 	{
@@ -71,7 +72,7 @@ int Game::run()
 				break;
 			}			
 		case Scene::scenes::END:
-			activeScene = new SceneEnd(renderWindow, event, score, highScore, currentWave);
+			activeScene = new SceneEnd(renderWindow, event, score, highScore, currentWave, victory);
 			break;
 		}
 		
@@ -87,6 +88,15 @@ int Game::run()
 			SceneGame* tempScene = dynamic_cast<SceneGame*>(activeScene);
 			if (tempScene != nullptr)//Donc si le cast a réussi.
 			{
+                score = tempScene->getScore();
+                highScore = tempScene->getHighScore();
+
+                if (currentWave == MAX_WAVES)
+                {
+                    victory = tempScene->isVictory();
+                    continue;
+                }
+
 				currentWave++;
 				if (typeid(*tempScene) == typeid(Level1))
 					levelSelector = Scene::levels::LEVEL2;

@@ -18,3 +18,12 @@ static const float RAD_TO_DEGREES_RATIO = 57.295779513f;
 static const int ARROW_MAX_DAMAGE = 5;
 static const int BLAST_MAX_DAMAGE = 13;
 static const int FIREBALL_MAX_DAMAGE = 11;
+
+static const int MAX_WAVES = 10;
+
+static const float MANA_GAIN_TIMER = 0.2f;
+static const int DEFAULT_MANA_AMOUNT = 500;
+static const int BUILD_ARCHER_TOWER_COST = 70;
+static const int BUILD_MAGE_TOWER_COST = 100;
+static const int CAST_PLAGUE_SPELL_COST = 20;
+static const int CAST_SACRED_LIGHT_COST = 60;
