@@ -48,6 +48,9 @@ public:
 	scenes run() override;
 	bool init() override;
 
+    void updateScore(int points);
+    void updateKill();
+    bool isGameEnded() const;
     const int getScore() const;
     const int getHighScore() const;
     const bool isVictory() const;
@@ -152,4 +155,7 @@ protected:
 	//Spells
 	SacredLight sacredLight;
 	Plague plague;
+
+    //score
+    int scorePerDemon = 50;
 };

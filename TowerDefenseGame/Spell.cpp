@@ -50,6 +50,7 @@ void Spell::update(float deltaTime)
     if (lifeTime < duration)
     {
         rotationSpeed += deltaTime / 15.0f;
+
         rune.rotate(rotationSpeed*(lifeTime*5.0f));
         spellCircle.rotate(deltaTime * 50.0f);
 

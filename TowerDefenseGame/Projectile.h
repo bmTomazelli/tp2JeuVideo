@@ -17,6 +17,8 @@ Metrics du Projectile (à effacer à la fin)
   Fireball: 63 - 3 * wave / 1.05 secondes - 0.05 * wave
 */
 
+class SceneGame;
+
 class Projectile: public GameObject, public Subject
 {
 public:
@@ -29,6 +31,10 @@ public:
     void moveToTarget(const float deltaTime);
     GameObject* getTarget() const;
     const int generateRandomDamage() const;
+
+    //methodes pour le score
+    void setSceneGame(SceneGame* sceneGame);
+    void notifyDamageForScore(int damage);
 
 private:
     void deactivateProjectile();
@@ -45,5 +51,7 @@ private:
     float moveAngle;
     GameObject* target = nullptr;
     Sound projectileSound;
+
+    SceneGame* sceneGame = nullptr; // Référence à la scène de jeu pour notifier les observateurs
 };
 

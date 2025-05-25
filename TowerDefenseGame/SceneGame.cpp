@@ -34,6 +34,7 @@ bool SceneGame::init()
 	for (int i = 0; i < MAX_DEMONS_ON_SCREEN; i++)
 	{
 		demons[i].init(currentWave);
+        demons[i].setSceneGame(this);
         Subject::addObserver(&demons[i]);
 	}
 
@@ -41,7 +42,10 @@ bool SceneGame::init()
     for (int i = 0; i < MAX_TOWERS_PROJECTILES; i++)
     {
         arrows[i].init(Projectile::ARROW);
+        arrows[i].setSceneGame(this);
+
         blasts[i].init(Projectile::BLAST);
+        blasts[i].setSceneGame(this);
     }
 
     for (int i = 0; i < MAX_FIREBALL_AMOUNT; i++)
@@ -530,6 +534,18 @@ void SceneGame::handleDemonsTargets()
     }
 }
 
+void SceneGame::updateScore(int dmgPoints)
+{
+    this->score += dmgPoints;
+
+    if (this->highScore < this->score)
+        this->highScore = score;
+}
+
+void SceneGame::updateKill() {
+    this->kills++;
+}
+
 void SceneGame::handleProjectilesOnScreen()
 {
     for (int i = 0; i < MAX_FIREBALL_AMOUNT; i++)
@@ -627,4 +643,9 @@ void SceneGame::notify(Subject* subject)
     {
         isKingDead = true;
     }
+}
+
+bool SceneGame::isGameEnded() const
+{
+    return isGameEnd;
 }

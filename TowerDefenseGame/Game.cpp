@@ -5,6 +5,8 @@
 #include "Level1.h"
 #include "Level2.h"
 #include "SceneEnd.h"
+#include <iostream>
+#include <fstream>
 
 
 Game::Game()
@@ -23,6 +25,9 @@ Game::Game()
 	//Nouveau: toujours la même chose pour avoir un icon dans l'explorateur Windows
 	icon.loadFromFile("Ressources\\Sprites\\Misc\\Icon.png");
 	renderWindow.setIcon(icon.getSize().x, icon.getSize().y, icon.getPixelsPtr());
+
+    
+    
 }
 
 int Game::run()
@@ -30,15 +35,20 @@ int Game::run()
 	if (!ContentPipeline::getInstance().loadContent()) return EXIT_FAILURE;
 
 	//Un enum et un pointeur de scene pour faire la manipulation de scène
-	Scene::scenes sceneSelector = Scene::scenes::GAME;
+	Scene::scenes sceneSelector = Scene::scenes::END;
 	Scene::levels levelSelector = Scene::levels::LEVEL1;
   
 	Scene* activeScene = nullptr; //Pointeur de la super-classe, peut pointer sur n'importe quelle scène
 
+    //On essaie de désérialiser les scores
+    deserializeScores();
+
+
 	//Les variables de passage d'information entre scènes devraient être déclarés ici
 	int currentWave = 1;
 	int score = 0;
-	int highScore = 0;
+	int highScore = highScoreData.score;
+    int highWave = highScoreData.wave;
     bool victory = false;
 
 	while (true)
@@ -72,7 +82,7 @@ int Game::run()
 				break;
 			}			
 		case Scene::scenes::END:
-			activeScene = new SceneEnd(renderWindow, event, score, highScore, currentWave, victory);
+			activeScene = new SceneEnd(renderWindow, event, score, highScore, currentWave, highWave, victory);
 			break;
 		}
 		
@@ -86,16 +96,20 @@ int Game::run()
 			//À la fin d'une scène, s'il y a des sauvegardes à faire
 			//C'est possible de les faire là.
 			SceneGame* tempScene = dynamic_cast<SceneGame*>(activeScene);
+
 			if (tempScene != nullptr)//Donc si le cast a réussi.
 			{
-                score = tempScene->getScore();
-                highScore = tempScene->getHighScore();
+        score = tempScene->getScore();
+        highScore = tempScene->getHighScore();
 
-                if (currentWave == MAX_WAVES)
-                {
-                    victory = tempScene->isVictory();
-                    continue;
-                }
+         if (tempScene->isGameEnded()) {//verifie si le score actuel est plus haut que le score enregistré
+            saveScore(score, currentWave);
+
+            if (currentWave == MAX_WAVES)
+            {
+                victory = tempScene->isVictory();
+                continue;
+        }
 
 				currentWave++;
 				if (typeid(*tempScene) == typeid(Level1))
@@ -116,3 +130,60 @@ int Game::run()
 		activeScene = nullptr;
 	}
 }
+
+void Game::serializeScores()
+{
+    // Créer la structure binaire pour la sauvegarde
+    ScoreBinary scoreBinary;
+    scoreBinary.scores[0] = highScoreData;
+
+    // Convertir en tableau d'octets pour la sérialisation
+    char binaryData[sizeof(ScoreBinary)];
+    memcpy(binaryData, &scoreBinary, sizeof(ScoreBinary));
+
+    // Écrire dans le fichier
+    std::ofstream file(dataFile, std::ios::binary);
+    if (file.is_open())
+    {
+        file.write(binaryData, sizeof(ScoreBinary));
+        file.close();
+    }
+}
+
+
+bool Game::saveScore(int score, int wave) {
+    //On sauvegarde le score dans la structure
+    if (score > highScoreData.score) {
+    highScoreData.score = score;
+    highScoreData.wave = wave;
+
+    //On sérialise les scores
+    serializeScores();
+    return true;
+    }
+
+    return false;
+}
+
+bool Game::deserializeScores()
+{
+    std::ifstream file(dataFile, std::ios::binary);
+    if (!file.is_open())
+        return false;
+
+    ScoreBinary scoreBinary = {}; // Zera toda a estrutura
+
+    // Verifica se o tamanho do arquivo bate
+    file.read(reinterpret_cast<char*>(&scoreBinary), sizeof(ScoreBinary));
+    if (!file)
+    {
+        // Falha na leitura (ex: arquivo menor do que o esperado)
+        file.close();
+        return false;
+    }
+
+    file.close();
+    highScoreData = scoreBinary.scores[0];
+    return true;
+}
+

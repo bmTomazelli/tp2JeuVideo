@@ -1,13 +1,15 @@
 #include "SceneEnd.h"
 #include "ContentPipeline.h"
 
-SceneEnd::SceneEnd(RenderWindow& renderWindow, Event& event, int score, int highScore, int waveAmount, bool victory) : Scene(renderWindow, event)
+SceneEnd::SceneEnd(RenderWindow& renderWindow, Event& event, int score, int highScore, int waveAmount, int highWave, bool victory) : Scene(renderWindow, event)
+
 {
 	view = renderWindow.getDefaultView();
 	this->score = score;
 	this->highScore = highScore;
 	this->waveAmount = waveAmount;
-    this->isVictory = victory;
+  this->highWave = highWave;
+  this->isVictory = victory;
 }
 
 Scene::scenes SceneEnd::run()
@@ -39,7 +41,7 @@ bool SceneEnd::init()
 		endGameScreen.setTexture(ContentPipeline::getInstance().getGameOverScreenTexture());
 	}
 
-	//--Préparation de la font-------------------------------------------------------------------------//
+	//--PrÃ©paration de la font-------------------------------------------------------------------------//
 	instructions[0].setFont(ContentPipeline::getInstance().getComiciFont());
 	instructions[0].setCharacterSize(50);
 	instructions[0].setOutlineThickness(4.0f);
@@ -58,8 +60,8 @@ bool SceneEnd::init()
 	//Utilisation du constructeur de copie
 	for (int i = 1; i < INSTRUCTIONS_NUMBER; i++) instructions[i] = instructions[0];
 
-	instructions[0].setString("Score - 0 (Wave - 1)");
-	instructions[1].setString("HighScore - 0 (Wave - 1");
+	instructions[0].setString("Score - "+std::to_string(score) + " (Wave - "+std::to_string(waveAmount) + ")");
+	instructions[1].setString("HighScore - "+std::to_string(highScore) + " (Wave - "+std::to_string(highWave) + "");
 	instructions[2].setString("Press Enter to go back to title screen");
 	instructions[3].setString("Press Escape to exit");
 
@@ -89,10 +91,10 @@ bool SceneEnd::init()
 
 void SceneEnd::getInputs()
 {
-	//On passe l'événement en référence et celui-ci est chargé du dernier événement reçu!
+	//On passe l'Ã©vÃ©nement en rÃ©fÃ©rence et celui-ci est chargÃ© du dernier Ã©vÃ©nement reÃ§u!
 	while (renderWindow.pollEvent(event))
 	{
-		//x sur la fenêtre
+		//x sur la fenÃªtre
 		if (event.type == Event::Closed) exitGame();	
 
 		if (event.type == Event::KeyPressed)
