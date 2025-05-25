@@ -16,11 +16,9 @@ void Spell::init()
     rotationSpeed = 0.0f;
 
     rune.setTexture(ContentPipeline::getInstance().getRunesTexture());
-    rune.setOrigin(rune.getGlobalBounds().width / 2.f, rune.getGlobalBounds().height / 2.f);
 
     //load the spell circle texture
     spellCircle.setTexture(ContentPipeline::getInstance().getMagicCircleTexture());
-    spellCircle.setOrigin(spellCircle.getGlobalBounds().width / 2.f, spellCircle.getGlobalBounds().height / 2.f);
     spellCircle.setScale(0.0f, 0.0f);
 }
 
@@ -53,7 +51,7 @@ void Spell::update(float deltaTime)
     {
         rotationSpeed += deltaTime / 15.0f;
         rune.rotate(rotationSpeed*(lifeTime*5));
-        spellCircle.rotate(rotationSpeed);
+        spellCircle.rotate(deltaTime * 50.f);
 
         //scale-in dans l'init
         if (currentScale < scaleInTime) {

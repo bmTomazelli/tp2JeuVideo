@@ -18,6 +18,8 @@ Metrics du Demon (à effacer à la fin)
 - Position de départ des démons au niveau 2: -100, 410
 */
 
+class SceneGame; // Forward declaration
+
 class Demon : public GameObject, public IObserver, public Subject
 {
 public:
@@ -40,6 +42,10 @@ public:
     FloatRect getTargetDetectionBox() const;
     const float getRangeOfFire() const;
     void resetStatus();
+    const int getHealth() const;
+
+    void setSceneGame(SceneGame* sceneGame);
+    const int getTowerDamage(int damage);
 
 private:
 	void checkStatus();
@@ -61,6 +67,8 @@ private:
 	const int MAX_DEMON_HEALTH = 60;
 	const float DEFAULT_DEMON_SPEED = 54.0f;
 	const float SPEED_WAVE_MULTIPLIER = 6.0f;
+
+    const int SCORE_DEAD_DEMON = 50;
 
 	const float HEALTHGAUGE_OFFSET_X = 25.0f;
 	const float HEALTHGAUGE_OFFSET_Y = RECTANGLE_HEIGHT * 2.0f;
@@ -96,5 +104,6 @@ private:
     float plagueDamageMultiplier = 1.f;
 
 	Sound attackSound;
+    SceneGame* sceneGame = nullptr; // Référence à la scène de jeu pour notifier les observateurs
 };
 

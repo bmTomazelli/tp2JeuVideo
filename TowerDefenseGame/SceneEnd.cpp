@@ -1,12 +1,13 @@
 #include "SceneEnd.h"
 #include "ContentPipeline.h"
 
-SceneEnd::SceneEnd(RenderWindow& renderWindow, Event& event, int score, int highScore, int waveAmount) : Scene(renderWindow, event)
+SceneEnd::SceneEnd(RenderWindow& renderWindow, Event& event, int score, int highScore, int , int highWave) : Scene(renderWindow, event)
 {
 	view = renderWindow.getDefaultView();
 	this->score = score;
 	this->highScore = highScore;
 	this->waveAmount = waveAmount;
+    this->highWave = highWave;
 }
 
 Scene::scenes SceneEnd::run()
@@ -57,8 +58,8 @@ bool SceneEnd::init()
 	//Utilisation du constructeur de copie
 	for (int i = 1; i < INSTRUCTIONS_NUMBER; i++) instructions[i] = instructions[0];
 
-	instructions[0].setString("Score - 0 (Wave - 1)");
-	instructions[1].setString("HighScore - 0 (Wave - 1");
+	instructions[0].setString("Score - "+std::to_string(score) + " (Wave - "+std::to_string(waveAmount) + ")");
+	instructions[1].setString("HighScore - "+std::to_string(highScore) + " (Wave - "+std::to_string(highWave) + "");
 	instructions[2].setString("Press Enter to go back to title screen");
 	instructions[3].setString("Press Escape to exit");
 

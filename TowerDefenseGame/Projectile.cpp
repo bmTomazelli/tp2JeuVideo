@@ -2,6 +2,7 @@
 #include "ContentPipeline.h"
 #include "Constants.h"
 #include <iostream>
+#include "SceneGame.h"
 
 Projectile::Projectile()
 {
@@ -87,5 +88,18 @@ void Projectile::checkCollisionWithTarget()
     {
         notifyAllObservers();
         deactivateProjectile();
+    }
+}
+
+void Projectile::setSceneGame(SceneGame* sceneGame)
+{
+    this->sceneGame = sceneGame;
+}
+
+void Projectile::notifyDamageForScore(int damage)
+{
+    if (sceneGame != nullptr)
+    {
+        sceneGame->updateScore(damage);
     }
 }

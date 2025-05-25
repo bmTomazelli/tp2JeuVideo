@@ -7,6 +7,7 @@
 #include "Plague.h"
 #include "SacredLight.h"
 #include "Projectile.h"
+#include "SceneGame.h"
 #include <iostream>
 
 Demon::Demon()
@@ -116,7 +117,9 @@ void Demon::notify(Subject* subject)
         Projectile* projectile = static_cast<Projectile*>(subject);
         if (projectile && projectile->getTarget() == this)
         {
-            loseHealth(projectile->generateRandomDamage());
+            int towerDamage = projectile->generateRandomDamage();
+            loseHealth(towerDamage);
+            sceneGame->updateScore(towerDamage);
         }
     }
 }
@@ -169,9 +172,20 @@ void Demon::resetStatus()
     spellTimer = 0.0f;
 }
 
+void Demon::setSceneGame(SceneGame* sceneGame)
+{
+    this->sceneGame = sceneGame;
+}
+
 void Demon::checkStatus()
 {
-	if (health <= 0 && !isDying()) setDemonState(DemonState::DYING);
+    if (health <= 0 && !isDying()) 
+    {
+        sceneGame->updateScore(SCORE_DEAD_DEMON);
+        sceneGame->updateKill();
+        
+        setDemonState(DemonState::DYING);
+    }
 
 	if (isDying() && currentImage == ANIM_DEMON - 1) deactivate();
 }
