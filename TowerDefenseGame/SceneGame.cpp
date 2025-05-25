@@ -510,7 +510,7 @@ Tower* SceneGame::findNearestTowerFromDemon(const Demon* demon, const std::vecto
         float dy = towerEmplacement->getPosition().y - demon->getPosition().y;
         float distSq = dx * dx + dy * dy;
 
-        if (distSq <= demonRangeSq && distSq < closestDistance)
+        if (distSq <= closestDistance)
         {
             closestDistance = distSq;
             closest = towerEmplacement->getTower();
