@@ -64,8 +64,8 @@ protected:
 	};
 
 	// Demons
-	static const int MAX_DEMONS_AMOUNT = 10;
-	static const int MAX_DEMONS_ON_SCREEN = 10;
+	static const int MAX_DEMONS_AMOUNT = 50;
+	static const int MAX_DEMONS_ON_SCREEN = 20;
 	int demonsAmount = 0;
 
 	View view;
