@@ -4,6 +4,9 @@
 #include "TwoPathWaypoint.h"
 #include "Tower.h"
 #include "TowerEmplacement.h"
+#include "Plague.h"
+#include "SacredLight.h"
+#include "Projectile.h"
 #include <iostream>
 
 Demon::Demon()
@@ -16,7 +19,7 @@ Demon::~Demon()
 	delete[] imagesDying;
 }
 
-void Demon::init(const int wave)
+void Demon::init(const int wave) 
 {
 	setTexture(ContentPipeline::getInstance().getDemonTexture());
 
@@ -62,6 +65,8 @@ void Demon::init(const int wave)
 
 	this->wave = wave;
 	speed = DEFAULT_DEMON_SPEED + (SPEED_WAVE_MULTIPLIER * wave);
+    recoil = MAX_RECOIL - 0.5f * wave;
+    recoilTimer = recoil;
 	setDemonState(DemonState::FLYING);
 }
 
@@ -69,6 +74,7 @@ void Demon::update(const float deltaTime)
 {
 	checkStatus();
     manageRecoil(deltaTime);
+    manageSpellEffect(deltaTime);
 	manageMovement(deltaTime);
 	manageAnimation(deltaTime);
 }
@@ -76,37 +82,43 @@ void Demon::update(const float deltaTime)
 void Demon::notify(Subject* subject)
 {
     Spell* spell = dynamic_cast<Spell*>(subject);
-    if (!spell) return;
-
-    float dx = spell->getPosition().x - getPosition().x;
-    float dy = spell->getPosition().y - getPosition().y;
-    float distSq = dx * dx + dy * dy;
-
-    if (distSq > spell->getRange() * spell->getRange()) return;
-
-    spellTimer = spell->getDuration();
-
-    if (spell->getType() == SpellType::sacredLight)
+    if (spell)
     {
-        SacredLight* sl = dynamic_cast<SacredLight*>(spell);
-        if (!sl) return;
+        float dx = spell->getPosition().x - getPosition().x;
+        float dy = spell->getPosition().y - getPosition().y;
+        float distSq = dx * dx + dy * dy;
 
-        speed /= sl->getSpeedMultiplier();
-        setColor(sl->getColor());
+        if (distSq > spell->getRange() * spell->getRange()) return;
+
+        spellTimer = spell->getDuration();
+
+        if (spell->getType() == SpellType::sacredLight)
+        {
+            SacredLight* sl = static_cast<SacredLight*>(spell);
+
+            speed /= sl->getSpeedMultiplier();
+            setColor(sl->getColor());
+        }
+        else if (spell->getType() == SpellType::plague)
+        {
+            Plague* plague = static_cast<Plague*>(spell);
+
+            loseHealth(plague->getDamageAmount()); // initial damage
+            setColor(plague->getColor());
+            plagueDamageMultiplier = plague->getDamageMultiplier(); // ex: 2.0f
+            plagueTickTimer = 0.f;
+        }
     }
-    else if (spell->getType() == SpellType::plague)
-    {
-        Plague* plague = dynamic_cast<Plague*>(spell);
-        if (!plague) return;
 
-        loseHealth(plague->getDamageAmount()); // initial damage
-        setColor(plague->getColor());
-        plagueDamageMultiplier = plague->getDamageMultiplier(); // ex: 2.0f
-        plagueTickTimer = 0.f;
+    if (typeid(*subject) == typeid(Projectile))
+    {
+        Projectile* projectile = static_cast<Projectile*>(subject);
+        if (projectile && projectile->getTarget() == this)
+        {
+            loseHealth(projectile->generateRandomDamage());
+        }
     }
 }
-
-
 
 void Demon::assignWaypointToFollow(Waypoint* waypoint)
 {
@@ -119,10 +131,12 @@ void Demon::spawnDemon(const Vector2f position)
 	healthGauge.setPosition(Vector2f(getPosition().x - HEALTHGAUGE_OFFSET_X, getPosition().y - HEALTHGAUGE_OFFSET_Y));
 	setDemonState(DemonState::FLYING);
 	health = MAX_DEMON_HEALTH;
+    healthGauge.reset();
+    recoilTimer = recoil;
 	activate();
 }
 
-void Demon::loseHealth(const float damage)
+void Demon::loseHealth(const int damage)
 {
 	health -= damage;
 	healthGauge.removeHealth((health * 100.0f / MAX_DEMON_HEALTH) / 100.0f);
@@ -130,7 +144,7 @@ void Demon::loseHealth(const float damage)
 
 void Demon::prepareShooting()
 {
-    recoil = MAX_RECOIL;
+    recoilTimer = 0.0f;
 }
 
 Waypoint* Demon::getWaypointToFollow() const
@@ -141,6 +155,11 @@ Waypoint* Demon::getWaypointToFollow() const
 FloatRect Demon::getTargetDetectionBox() const
 {
 	return targetDetectionBox;
+}
+
+const float Demon::getRangeOfFire() const
+{
+    return rangeOfFire;
 }
 
 void Demon::checkStatus()
@@ -155,7 +174,41 @@ void Demon::manageMovement(const float deltaTime)
 	if (isDying()) return;
 
 	if (waypointToFollow == nullptr) return;
+		
+	// Déplacement
+	moveAngle = atan2f((waypointToFollow->getPosition().y - getPosition().y), (waypointToFollow->getPosition().x - getPosition().x));
 
+	float offsetX = cos(moveAngle) * deltaTime * speed;
+	float offsetY = sin(moveAngle) * deltaTime * speed;
+	move(offsetX, offsetY);
+	healthGauge.move(offsetX, offsetY);
+
+	// Réflection
+	if (cos(moveAngle) >= 0)
+	{
+		setScale(1, 1); // Vise vers la droite
+	}
+	else
+	{
+		setScale(-1, 1); // Vise vers la gauche
+	}
+
+	checkCollisionWithWaypoint();
+}
+
+void Demon::manageRecoil(const float deltaTime)
+{
+    if (recoilTimer >= recoil)
+    {
+        recoilTimer = recoil;
+        return;
+    }
+
+    recoilTimer += deltaTime;
+}
+
+void Demon::manageSpellEffect(const float deltaTime)
+{
     if (spellTimer > 0.0f) {
         spellTimer -= deltaTime;
 
@@ -176,48 +229,7 @@ void Demon::manageMovement(const float deltaTime)
             plagueDamageMultiplier = 1.0f;
 
             speed = DEFAULT_DEMON_SPEED + (SPEED_WAVE_MULTIPLIER * wave);
-
-
         }
-    }
-
-		
-	// Déplacement
-	moveAngle = atan2f((waypointToFollow->getPosition().y - getPosition().y), (waypointToFollow->getPosition().x - getPosition().x));
-
-	float offsetX = cos(moveAngle) * deltaTime * speed;
-	float offsetY = sin(moveAngle) * deltaTime * speed;
-	move(offsetX, offsetY);
-	healthGauge.move(offsetX, offsetY);
-
-	// Réflection
-	if (cos(moveAngle) >= 0)
-	{
-		setScale(1, 1); // Vise vers la droite
-	}
-	else
-	{
-		setScale(-1, 1); // Vise vers la gauche
-	}
-
-	// Rotation continue 
-	//angle++;
-	//setRotation(angle);
-	//if (angle > 360)
-	//{
-	//	angle = 0;
-	//}
-
-	checkCollisionWithWaypoint();
-}
-
-void Demon::manageRecoil(const float deltaTime)
-{
-    recoil -= deltaTime;
-
-    if (recoil <= 0.0f)
-    {
-        recoil = 0.0f;
     }
 }
 
@@ -283,5 +295,5 @@ bool Demon::isDying() const
 
 bool Demon::canShoot() const
 {
-    return recoil <= 0;
+    return recoilTimer == recoil;
 }

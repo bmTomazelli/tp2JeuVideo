@@ -9,6 +9,7 @@ class HealthGauge: public Subject
 {
 public:
 	void init();
+    void reset();
 	void setPosition(const Vector2f position);
 	void move(const float offsetX, const float offsetY);
 	void draw(RenderWindow& renderWindow) const;

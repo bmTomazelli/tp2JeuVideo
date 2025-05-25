@@ -12,6 +12,7 @@ public:
     std::vector<float> frameDuration;
     const int MAGE_FRAME_WIDTH = 150;
     const int MAGE_FRAME_HEIGHT = 150;
+    const float BLAST_RECOIL = 1.5f;
 
     MageTower();
     void update(float deltaTime, std::vector<Demon*>& demons) override;
@@ -24,6 +25,7 @@ public:
     void spawn(const Vector2f& position);
 
     void notify(Subject* subject) override;
+    Demon* getTarget() const;
 
 private:
     std::vector<IntRect> animationFrames;
@@ -33,13 +35,5 @@ private:
     bool animating;
     Demon* target;
 
-    //boost
-    
-
-    //fire
-	float fireCooldown;
-	float fireTimer;
-
     void setupAnimation();
-    void shoot();
 };

@@ -59,8 +59,11 @@ protected:
     void manageActiveAction();
 	void manageWaypoints();
 	void manageDemonsSpawning();
+    void managePause();
 	void manageGameOver();
     void manageActiveActionChange();
+
+    void handleArchersAttackingDemons();
     void handleDemonsTargets();
     void handleProjectilesOnScreen();
 
@@ -120,7 +123,7 @@ protected:
     static const int MAX_FIREBALL_AMOUNT = 20;
     static const int MAX_TOWERS_PROJECTILES = 10;
 
-    Projectile fireballs[MAX_FIREBALL_AMOUNT];
+    Projectile fireballs[MAX_DEMONS_ON_SCREEN];
     Projectile arrows[MAX_TOWERS_PROJECTILES];
     Projectile blasts[MAX_TOWERS_PROJECTILES];
 
@@ -130,9 +133,13 @@ protected:
 	int score;
 	int highScore;
 
+    bool isInPause = false;
+
     ActiveAction activeAction;
 
 	bool isKingDead = false;
+    bool isGameEnd = false;
+
 	//Spells
 	SacredLight sacredLight;
 	Plague plague;

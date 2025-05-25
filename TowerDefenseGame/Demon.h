@@ -4,9 +4,6 @@
 #include "IObserver.h"
 #include "Subject.h"
 #include "HealthGauge.h"
-#include "Spell.h"
-#include "Plague.h"
-#include "SacredLight.h"
 
 /*
 Metrics du Demon (à effacer à la fin)
@@ -33,7 +30,7 @@ public:
 
 	void assignWaypointToFollow(Waypoint* waypoint);
 	void spawnDemon(const Vector2f position);
-	void loseHealth(const float damage);
+	void loseHealth(const int damage);
 
     void prepareShooting();
 
@@ -41,11 +38,13 @@ public:
     bool canShoot() const;
 	Waypoint* getWaypointToFollow() const;
     FloatRect getTargetDetectionBox() const;
+    const float getRangeOfFire() const;
 
 private:
 	void checkStatus();
 	void manageMovement(const float deltaTime);
     void manageRecoil(const float deltaTime);
+    void manageSpellEffect(const float deltaTime);
 	void checkCollisionWithWaypoint();
 	void manageAnimation(const float deltaTime);
 	void runAnimation(const float deltaTime, const float timePerFrame, const int imageNumber, const bool linear, IntRect* images);
@@ -66,7 +65,8 @@ private:
 	const float HEALTHGAUGE_OFFSET_Y = RECTANGLE_HEIGHT * 2.0f;
     const int TARGET_DETECTION_BOX_SIZE = 200;
 
-    const float MAX_RECOIL = 3.0f;
+    const float MAX_RECOIL = 1.05f;
+    const float DEMON_RANGE_OF_FIRE = 250.0f;
 
 	IntRect* imagesFlying;
 	IntRect* imagesDying;
@@ -85,6 +85,8 @@ private:
 	float moveAngle;
 	float angle = 0;
     float recoil = 0;
+    float recoilTimer = 0;
+    float rangeOfFire = 250.0f;
 
     FloatRect targetDetectionBox;
 

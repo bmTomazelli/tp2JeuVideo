@@ -39,13 +39,25 @@ bool SceneGame::init()
     // Initialisation des projectiles
     for (int i = 0; i < MAX_TOWERS_PROJECTILES; i++)
     {
-        arrows->init(Projectile::ARROW);
-        blasts->init(Projectile::BLAST);
+        arrows[i].init(Projectile::ARROW);
+        blasts[i].init(Projectile::BLAST);
     }
 
     for (int i = 0; i < MAX_FIREBALL_AMOUNT; i++)
     {
-        fireballs->init(Projectile::FIREBALL);
+        fireballs[i].init(Projectile::FIREBALL);
+    }
+
+    kingTower.init();
+
+    for (int i = 0; i < MAX_ARCHER_TOWERS; i++)
+    {
+        archerTowers[i].init();
+    }
+
+    for (int i = 0; i < MAX_MAGE_TOWERS; i++)
+    {
+        mageTowers[i].init();
     }
 
     hud.hudInit(ContentPipeline::getInstance().getHudmaskTexture(), ContentPipeline::getInstance().getComiciFont(), currentWave);
@@ -85,7 +97,23 @@ void SceneGame::getInputs()
                 inputs.activeActionChanged = true;
                 inputs.buildMageTower = true;
             }
-            
+
+            if (event.key.code == Keyboard::A)
+            {
+                inputs.activeActionChanged = true;
+                inputs.castPlague = true;
+            }
+
+            if (event.key.code == Keyboard::S)
+            {
+                inputs.activeActionChanged = true;
+                inputs.castSacredLight = true;
+            }
+
+            if (event.key.code == Keyboard::P)
+            {
+                inputs.togglePause = true;
+            }
 		}
 
         if (event.type == Event::MouseButtonPressed)
@@ -104,17 +132,7 @@ void SceneGame::getInputs()
 	}
 	else
 	{
-       
-        if (Keyboard::isKeyPressed(Keyboard::D))
-        {
-            for (int i = 0; i < MAX_MAGE_TOWERS; i++)
-            {
-                if (mageTowers[i].isActive())
-                {
-                    mageTowers[i].setLife();
-                }
-            }
-        }
+
 	}
 }
 
@@ -122,14 +140,22 @@ void SceneGame::update()
 {
 	if (isKingDead) return;
 
+    managePause();
+
+    if (isInPause) return;
+
     if (inputs.activeActionChanged) manageActiveActionChange();
 
     if (inputs.clickOnScreen) manageActiveAction();
 
 	manageWaypoints();
+
     std::vector<Demon*> activeDemons;
-    for (int i = 0; i < MAX_DEMONS_ON_SCREEN; i++) {
-        if (demons[i].isActive()) {
+
+    for (int i = 0; i < MAX_DEMONS_ON_SCREEN; i++) 
+    {
+        if (demons[i].isActive())
+        {
             demons[i].update(deltaTime);
             activeDemons.push_back(&demons[i]);
         }
@@ -146,26 +172,12 @@ void SceneGame::update()
         if (mageTowers[i].isActive())
             mageTowers[i].update(deltaTime, activeDemons);
     }
+
+    handleArchersAttackingDemons();
     handleDemonsTargets();
     handleProjectilesOnScreen();
-    
-    //Update pour les magies
-    //si le joueur clique sur la souris gauche, on active la magie
-    //plus tard, on ajoutera la valeur de la mana dans cet if
-    if (inputs.castSacredLight && inputs.mouseLeftButtonClicked)
-    {
-        sacredLight.activate(inputs.mousePosition);
-        inputs.castSacredLight = false;
-    }
 
     sacredLight.update(deltaTime);
-
-    //plus tard, on ajoutera la valeur de la mana dans cet if
-    if (inputs.castPlague && inputs.mouseLeftButtonClicked)
-    {
-        plague.activate(inputs.mousePosition);
-        inputs.castPlague = false;
-    }
 
     plague.update(deltaTime);
 
@@ -186,11 +198,6 @@ void SceneGame::draw()
 	}
 
     // Projectiles
-    for (int i = 0; i < MAX_FIREBALL_AMOUNT; i++)
-    {
-        if (fireballs->isActive())
-            fireballs->draw(renderWindow);
-    }
 
     for (int i = 0; i < MAX_ARCHER_TOWERS; i++)
     {
@@ -202,7 +209,6 @@ void SceneGame::draw()
     {
         if (mageTowers[i].isActive()) 
             mageTowers[i].draw(renderWindow);
-        
     }
 
     kingTower.draw(renderWindow);
@@ -223,6 +229,21 @@ void SceneGame::draw()
     {
         for (int i = 0; i < waypointsAmount; i++)
             waypoints[i]->draw(renderWindow);
+    }
+
+    for (int i = 0; i < MAX_FIREBALL_AMOUNT; i++)
+    {
+        if (fireballs[i].isActive())
+            fireballs[i].draw(renderWindow);
+    }
+
+    for (int i = 0; i < MAX_TOWERS_PROJECTILES; i++)
+    {
+        if (arrows[i].isActive())
+            arrows[i].draw(renderWindow);
+
+        if (blasts[i].isActive())
+            blasts[i].draw(renderWindow);
     }
 
     sacredLight.draw(renderWindow);
@@ -267,7 +288,6 @@ void SceneGame::manageActiveAction()
             {
                 if (!archerTowers[i].isActive())
                 {
-                    archerTowers[i].init();
                     archerTowers[i].spawn(selectedEmplacement->getPosition());
                     selectedEmplacement->occupyTower(&archerTowers[i]);
                     break;
@@ -286,7 +306,6 @@ void SceneGame::manageActiveAction()
             {
                 if (!mageTowers[i].isActive())
                 {
-                    mageTowers[i].init();
                     mageTowers[i].spawn(selectedEmplacement->getPosition());
                     selectedEmplacement->occupyTower(&mageTowers[i]);
                     break;
@@ -295,6 +314,12 @@ void SceneGame::manageActiveAction()
         }
 
         selectedEmplacement = nullptr;
+        break;
+    case CAST_PLAGUE:
+        plague.activate(inputs.mousePosition);
+        break;
+    case CAST_SACRED_LIGHT:
+        sacredLight.activate(inputs.mousePosition);
         break;
     }
 }
@@ -337,48 +362,87 @@ void SceneGame::manageDemonsSpawning()
 	}
 }
 
+void SceneGame::managePause()
+{
+    if (inputs.togglePause)
+    {
+        if (isInPause)
+        {
+            isInPause = false;
+            music.play();
+        }
+        else
+        {
+            isInPause = true;
+            music.pause();
+        }
+    }
+}
+
 void SceneGame::manageGameOver()
 {
 	if (kills == MAX_DEMONS_AMOUNT)
 	{
 		hud.changeToEndGameHud(true);
+        isGameEnd = true;
 	}
-
-	if (isKingDead)
+	
+    if (isKingDead)
 	{
 		hud.changeToEndGameHud(false);
+        isGameEnd = true;
 	}
 }
 
 void SceneGame::manageActiveActionChange()
 {
-    if (inputs.buildArcherTower)
-    {
-        activeAction = ActiveAction::BUILD_ARCHER;
-    }
+    if (inputs.buildArcherTower) activeAction = ActiveAction::BUILD_ARCHER;
 
-    if (inputs.buildMageTower)
-    {
-        activeAction = ActiveAction::BUILD_MAGE;
-    }
+    if (inputs.buildMageTower) activeAction = ActiveAction::BUILD_MAGE;
 
-    //if (inputs.spawnPlagueSpell)
-    //{
-    //    activeAction = ActiveAction::BUILD_ARCHER;
-    //}
+    if (inputs.castPlague) activeAction = ActiveAction::CAST_PLAGUE;
 
-    //if (inputs.spawnSacredLightSpell)
-    //{
-    //    activeAction = ActiveAction::BUILD_ARCHER;
-    //}
+    if (inputs.castSacredLight) activeAction = ActiveAction::CAST_SACRED_LIGHT;
 
     hud.handleActiveAction(activeAction);
 }
 
+void SceneGame::handleArchersAttackingDemons()
+{
+    for (TowerEmplacement* towerEmplacement : listTowerEmplacements)
+    {
+        std::vector<Demon*> demonPointers;
+        for (int i = 0; i < demonsAmount; ++i)
+        {
+            if (demons[i].isActive())
+                demonPointers.push_back(&demons[i]);
+        }
+
+        if (towerEmplacement->isOccupied())
+        {
+            Tower* tower = towerEmplacement->getTower();
+            Demon* demon = tower->findNearestTarget(demonPointers);
+            if (demon && tower->canShoot())
+            {
+                if (dynamic_cast<ArcherTower*>(tower))
+                {
+                    for (int i = 0; i < MAX_TOWERS_PROJECTILES; ++i)
+                    {
+                        if (!arrows[i].isActive())
+                        {
+                            arrows[i].shoot(tower->getPosition(), demon);
+                            tower->prepareShooting();
+                            break;
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
 void SceneGame::handleDemonsTargets()
 {
-    float minimumDistance = 0;
-
     for (int i = 0; i < MAX_DEMONS_ON_SCREEN; i++)
     {
         if (demons[i].isActive() && demons[i].canShoot())
@@ -386,8 +450,15 @@ void SceneGame::handleDemonsTargets()
             Tower* nearestTarget = findNearestTowerFromDemon(&demons[i], listTowerEmplacements);
             if (nearestTarget)
             {
-                demons[i].prepareShooting();
-                fireballs->shoot(demons[i].getPosition(), nearestTarget);
+                for (int j = 0; j < MAX_FIREBALL_AMOUNT; j++)
+                {
+                    if (!fireballs[j].isActive())
+                    {
+                        fireballs[j].shoot(demons[i].getPosition(), nearestTarget);
+                        demons[i].prepareShooting();
+                        break;
+                    }
+                }
             }
         }
     }
@@ -398,9 +469,16 @@ void SceneGame::handleProjectilesOnScreen()
     for (int i = 0; i < MAX_FIREBALL_AMOUNT; i++)
     {
         if (fireballs[i].isActive())
-        {
             fireballs[i].moveToTarget(deltaTime);
-        }
+    }
+
+    for (int i = 0; i < MAX_TOWERS_PROJECTILES; i++)
+    {
+        if (arrows[i].isActive())
+            arrows[i].moveToTarget(deltaTime);
+
+        if (blasts[i].isActive())
+            blasts[i].moveToTarget(deltaTime);
     }
 }
 
@@ -409,20 +487,30 @@ Waypoint* SceneGame::getNextWaypointForDemon(Demon* demon) const
 	return demon->getWaypointToFollow()->getNextWaypoint();
 }
 
-Tower* SceneGame::findNearestTowerFromDemon(const Demon* source, const std::vector<TowerEmplacement*>& towers)
+Tower* SceneGame::findNearestTowerFromDemon(const Demon* demon, const std::vector<TowerEmplacement*>& towers)
 {
     Tower* closest = nullptr;
-    float closestDistance = SCREEN_WIDTH * SCREEN_WIDTH;
+    const float demonRangeSq = demon->getRangeOfFire() * demon->getRangeOfFire();
+    float closestDistance = demonRangeSq;
 
+    // Validation de s'il est proche de la tour du roi
+    float distanceFromKingX = kingTower.getPosition().x - demon->getPosition().x;
+    float distanceFromKingY = kingTower.getPosition().y - demon->getPosition().y;
+    float distanceFromKingSq = distanceFromKingX * distanceFromKingX + distanceFromKingY * distanceFromKingY;
+
+    if (distanceFromKingSq <= demonRangeSq)
+        return &kingTower;
+
+    // Validation de s'il est proche s'un des emplacements de tours
     for (TowerEmplacement* towerEmplacement : towers)
     {
         if (!towerEmplacement->isOccupied()) continue;
 
-        float dx = towerEmplacement->getPosition().x - source->getPosition().x;
-        float dy = towerEmplacement->getPosition().y - source->getPosition().y;
+        float dx = towerEmplacement->getPosition().x - demon->getPosition().x;
+        float dy = towerEmplacement->getPosition().y - demon->getPosition().y;
         float distSq = dx * dx + dy * dy;
 
-        if (distSq < closestDistance)
+        if (distSq <= demonRangeSq && distSq < closestDistance)
         {
             closestDistance = distSq;
             closest = towerEmplacement->getTower();
@@ -447,10 +535,29 @@ TowerEmplacement* SceneGame::getTowerEmplacementFromClickedPosition(const Vector
 
 void SceneGame::notify(Subject* subject)
 {
-	if (typeid(*subject) == typeid(Demon))
-	{
-		Demon* demon = static_cast<Demon*>(subject);
-		Waypoint* nextWaypoint = getNextWaypointForDemon(demon);
-		demon->assignWaypointToFollow(nextWaypoint);
-	}
+    if (typeid(*subject) == typeid(Demon))
+    {
+        Demon* demon = static_cast<Demon*>(subject);
+        Waypoint* nextWaypoint = getNextWaypointForDemon(demon);
+        demon->assignWaypointToFollow(nextWaypoint);
+    }
+
+    if (typeid(*subject) == typeid(MageTower))
+    {
+        MageTower* mage = static_cast<MageTower*>(subject);
+        for (int i = 0; i < MAX_TOWERS_PROJECTILES; ++i)
+        {
+            if (!blasts[i].isActive())
+            {
+                blasts[i].shoot(mage->getPosition(), mage->getTarget());
+                mage->prepareShooting();
+                break;
+            }
+        }
+    }
+
+    if (typeid(*subject) == typeid(KingTower))
+    {
+        isKingDead = true;
+    }
 }

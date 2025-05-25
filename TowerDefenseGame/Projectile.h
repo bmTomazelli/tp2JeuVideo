@@ -1,5 +1,6 @@
 #pragma once
 #include "GameObject.h"
+#include "Subject.h"
 
 /*
 Metrics du Projectile (à effacer à la fin)
@@ -16,7 +17,7 @@ Metrics du Projectile (à effacer à la fin)
   Fireball: 63 - 3 * wave / 1.05 secondes - 0.05 * wave
 */
 
-class Projectile: public GameObject
+class Projectile: public GameObject, public Subject
 {
 public:
     enum ProjectileType { ARROW, BLAST, FIREBALL };
@@ -26,13 +27,17 @@ public:
     void init(const ProjectileType projectileType );
     void shoot(const Vector2f startingPosition, GameObject* actorToTarget);
     void moveToTarget(const float deltaTime);
+    GameObject* getTarget() const;
+    const int generateRandomDamage() const;
 
 private:
     void deactivateProjectile();
+    void checkCollisionWithTarget();
 
     const float ARROW_SPEED = 15.0f;
     const float BLAST_SPEED = 8.0f;
     const float FIREBALL_SPEED = 10.0f;
+    const float HIT_RADIUS = 30.0f;
 
     float speed;
     int maxDamage;

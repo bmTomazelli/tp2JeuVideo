@@ -10,6 +10,5 @@ public:
     void draw(RenderWindow& renderWindow) const override;
 
     void update(float deltaTime, std::vector<Demon*>& demons) override;
-    void notify(Subject* subject) override;
     void updateSpell(float deltaTime) override;
 };

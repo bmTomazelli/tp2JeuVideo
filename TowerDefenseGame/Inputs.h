@@ -19,16 +19,17 @@ struct Inputs
 		castPlague = false;
 		activeActionChanged = false;
 		clickOnScreen = false;
+        togglePause = false;
 	}
 
 	Vector2f mousePosition;
 	bool mouseLeftButtonClicked;
 	bool toggleWaypoints;
-    bool activeActionChanged;
     bool buildArcherTower = false;
     bool buildMageTower = false;
 	bool castSacredLight = false;
 	bool castPlague = false;
 	bool activeActionChanged;
 	bool clickOnScreen;
+    bool togglePause;
 };

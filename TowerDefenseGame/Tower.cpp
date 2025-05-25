@@ -1,7 +1,9 @@
 #include "Tower.h"
+#include "Projectile.h"
 
 Tower::Tower() : active(false), range(TOWER_RANGE), fireSpell(1.0f), spellTimer(0.0f)
 {
+    Subject::addObserver(this);
 }
 
 Tower::~Tower()
@@ -23,7 +25,8 @@ void Tower::takeDamage(int damage)
     float hpRatio = float(hp) / float(DEFAULT_TOWER_HP);
     healthGauge.removeHealth(hpRatio);
 
-    if (hp <= 0) {
+    if (hp <= 0) 
+    {
         deactivate();
         notifyAllObservers();
     }
@@ -38,6 +41,7 @@ Demon* Tower::findNearestTarget(const std::vector<Demon*>& demons)
     for (Demon* d : demons)
     {
         if (!d->isActive()) continue;
+
         float dx = d->getPosition().x - getPosition().x;
         float dy = d->getPosition().y - getPosition().y;
         float distSq = dx * dx + dy * dy;
@@ -50,6 +54,11 @@ Demon* Tower::findNearestTarget(const std::vector<Demon*>& demons)
     }
 
     return closest;
+}
+
+bool Tower::canShoot() const
+{
+    return recoilTimer == recoil;
 }
 
 void Tower::updateStatus(float deltaTime)
@@ -78,35 +87,59 @@ void Tower::updateStatus(float deltaTime)
 void Tower::notify(Subject* subject)
 {
     Spell* spell = dynamic_cast<Spell*>(subject);
-    if (!spell) return;
-
-    float dx = spell->getPosition().x - getPosition().x;
-    float dy = spell->getPosition().y - getPosition().y;
-    float distSq = dx * dx + dy * dy;
-
-    if (distSq > spell->getRange() * spell->getRange()) return;
-
-    spellTimer = spell->getDuration();
-
-    if (spell->getType() == SpellType::sacredLight)
+    if (spell)
     {
-        SacredLight* sl = dynamic_cast<SacredLight*>(spell);
-        if (!sl) return;
+        float dx = spell->getPosition().x - getPosition().x;
+        float dy = spell->getPosition().y - getPosition().y;
+        float distSq = dx * dx + dy * dy;
 
-        spellColor = sl->getColor();
-        hp += sl->getHealAmount();
-        fireSpell = sl->getSpeedMultiplier(); // 2.0f
+        if (distSq > spell->getRange() * spell->getRange()) return;
+
+        spellTimer = spell->getDuration();
+
+        if (spell->getType() == SpellType::sacredLight)
+        {
+            SacredLight* sl = static_cast<SacredLight*>(spell);
+
+            spellColor = sl->getColor();
+            hp += sl->getHealAmount();
+            fireSpell = sl->getSpeedMultiplier(); // 2.0f
+        }
+        else if (spell->getType() == SpellType::plague)
+        {
+            Plague* p = static_cast<Plague*>(spell);
+
+            spellColor = p->getColor();
+            takeDamage(p->getDamageAmount() * p->getDamageMultiplier());  // starter hit
+            plagueDamageMultiplier = p->getDamageMultiplier();            // attaque doublé
+            plagueTimer = spell->getDuration();                           // durée de l'effet
+            plagueTickTimer = 0.f;                                        //hit par tick
+        }
     }
-    else if (spell->getType() == SpellType::plague)
+
+    if (typeid(*subject) == typeid(Projectile))
     {
-        Plague* p = dynamic_cast<Plague*>(spell);
-        if (!p) return;
-
-        spellColor = p->getColor();
-        takeDamage(p->getDamageAmount() * p->getDamageMultiplier());  // starter hit
-        plagueDamageMultiplier = p->getDamageMultiplier();            // attaque doublé
-        plagueTimer = spell->getDuration();                           // durée de l'effet
-        plagueTickTimer = 0.f;                                        //hit par tick
+        Projectile* projectile = static_cast<Projectile*>(subject);
+        if (projectile && projectile->getTarget() == this)
+        {
+            takeDamage(projectile->generateRandomDamage());
+        }
     }
+}
+
+void Tower::manageRecoil(const float deltaTime)
+{
+    if (recoilTimer >= recoil)
+    {
+        recoilTimer = recoil;
+        return;
+    }
+
+    recoilTimer += deltaTime;
+}
+
+void Tower::prepareShooting()
+{
+    recoilTimer = 0.0f;
 }
 

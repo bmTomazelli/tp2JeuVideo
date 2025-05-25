@@ -18,12 +18,11 @@ void MageTower::init()
     range = TOWER_RANGE;
     hp = DEFAULT_TOWER_HP;
 
-    fireCooldown = MAGE_FIRE_RATE;
-    fireTimer = 0.f;
+    recoil = BLAST_RECOIL;
+    recoilTimer = recoil;
 
     float radius = static_cast<float>(MAGE_FRAME_WIDTH) * TOWER_COLLISION_RADIUS_SCALE;
     setCollisionCircleRadius(radius);
-
 
     healthGauge.init();
 
@@ -34,10 +33,11 @@ void MageTower::init()
 void MageTower::spawn(const Vector2f& position)
 {
     setPosition(position);
+    hp = DEFAULT_TOWER_HP;
+    healthGauge.reset();
     healthGauge.setPosition(Vector2f(getPosition().x - 30.f, getPosition().y - 75.f));
     activate();
 }
-
 
 void MageTower::setupAnimation()
 {
@@ -57,7 +57,10 @@ void MageTower::update(float deltaTime, std::vector<Demon*>& demons)
 
     updateStatus(deltaTime);
     updateSpell(deltaTime);
-    handleTargeting(demons);
+    manageRecoil(deltaTime);
+    
+    if (canShoot()) handleTargeting(demons);
+    
     handleAnimation(deltaTime);
 }
 
@@ -103,9 +106,13 @@ void MageTower::handleAnimation(float deltaTime)
             animationTimer = 0.f;
             currentFrame++;
 
+            if (currentFrame == animationFrames.size() - 1)
+            {
+                notifyAllObservers();
+            }
+
             if (currentFrame >= animationFrames.size())
             {
-                shoot();
                 animating = false;
                 currentFrame = 0;
             }
@@ -113,13 +120,6 @@ void MageTower::handleAnimation(float deltaTime)
             setTextureRect(animationFrames[currentFrame]);
         }
     }
-}
-
-
-
-void MageTower::shoot()
-{
-    //projectile
 }
 
 void MageTower::draw(RenderWindow& renderWindow) const
@@ -148,4 +148,9 @@ void MageTower::notify(Subject* subject)
         //speed boost
 
     }
+}
+
+Demon* MageTower::getTarget() const
+{
+    return target;
 }

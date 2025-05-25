@@ -8,6 +8,12 @@ void HealthGauge::init()
 	greenHealth.setTexture(ContentPipeline::getInstance().getGreenBarTexture());
 }
 
+void HealthGauge::reset()
+{
+    health = 1.0f;
+    greenHealth.setScale(health, 1);
+}
+
 void HealthGauge::setPosition(const Vector2f position)
 {
 	redHealth.setPosition(position.x, position.y);
@@ -31,9 +37,6 @@ void HealthGauge::addHealth(const float healthToAdd)
 
 void HealthGauge::removeHealth(const float healthToRemove)
 {
-	std::cout << "To Remove : " << healthToRemove << "\n";
-	std::cout << health << "\n";
-
 	health = healthToRemove;
 	if (health <= 0)
 	{

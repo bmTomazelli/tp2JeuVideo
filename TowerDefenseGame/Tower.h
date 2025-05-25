@@ -8,7 +8,6 @@
 #include "SacredLight.h"
 #include <vector>
 
-
 class Tower : public GameObject, public Subject, public IObserver
 {
 public:
@@ -23,14 +22,17 @@ public:
 
     Tower();
     virtual ~Tower();
-    void init();
     virtual void update(float deltaTime, std::vector<Demon*>& demons) = 0;
     virtual void draw(RenderWindow& renderWindow) const;
     void takeDamage(int damage);
     void notify(Subject* subject) override;
+    void manageRecoil(const float deltaTime);
+    void prepareShooting();
+    
+    Demon* findNearestTarget(const std::vector<Demon*>& demons);
+    bool canShoot() const;
 
 protected:
-    Demon* findNearestTarget(const std::vector<Demon*>& demons);
     void updateStatus(float deltaTime);
     virtual void updateSpell(float deltaTime) =0;
 
@@ -44,6 +46,6 @@ protected:
     float plagueTimer = 0.f;
     float plagueTickTimer = 0.f;
     float plagueDamageMultiplier = 1.f;
-
-
+    float recoil = 0.0f;
+    float recoilTimer = 0.0f;
 };
