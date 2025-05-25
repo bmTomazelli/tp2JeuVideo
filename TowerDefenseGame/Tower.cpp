@@ -1,5 +1,6 @@
 #include "Tower.h"
 #include "Projectile.h"
+#include <iostream>
 
 Tower::Tower() : active(false), range(TOWER_RANGE), fireSpell(1.0f), spellTimer(0.0f)
 {
@@ -22,10 +23,10 @@ void Tower::takeDamage(int damage)
     damage *= plagueDamageMultiplier; // multiplicateur de dégâts pendant la durée de la plague
 
     hp -= damage;
-    float hpRatio = float(hp) / float(DEFAULT_TOWER_HP);
+    float hpRatio = float(hp) / float(totalHp);
     healthGauge.removeHealth(hpRatio);
 
-    if (hp <= 0) 
+    if (isDead()) 
     {
         deactivate();
         notifyAllObservers();
@@ -59,6 +60,11 @@ Demon* Tower::findNearestTarget(const std::vector<Demon*>& demons)
 bool Tower::canShoot() const
 {
     return recoilTimer == recoil;
+}
+
+bool Tower::isDead() const
+{
+    return hp <= 0;
 }
 
 void Tower::updateStatus(float deltaTime)
@@ -103,6 +109,7 @@ void Tower::notify(Subject* subject)
 
             spellColor = sl->getColor();
             hp += sl->getHealAmount();
+            healthGauge.addHealth(float(hp) / float(DEFAULT_TOWER_HP));
             fireSpell = sl->getSpeedMultiplier(); // 2.0f
         }
         else if (spell->getType() == SpellType::plague)
@@ -141,5 +148,11 @@ void Tower::manageRecoil(const float deltaTime)
 void Tower::prepareShooting()
 {
     recoilTimer = 0.0f;
+}
+
+void Tower::resetStatus()
+{
+    plagueTimer = 0.0f;
+    spellTimer = 0.0f;
 }
 

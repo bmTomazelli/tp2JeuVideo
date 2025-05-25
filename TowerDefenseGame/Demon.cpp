@@ -65,7 +65,8 @@ void Demon::init(const int wave)
 
 	this->wave = wave;
 	speed = DEFAULT_DEMON_SPEED + (SPEED_WAVE_MULTIPLIER * wave);
-    recoil = MAX_RECOIL - 0.5f * wave;
+
+    recoil = MAX_RECOIL - 0.05f * wave;
     recoilTimer = recoil;
 	setDemonState(DemonState::FLYING);
 }
@@ -133,6 +134,7 @@ void Demon::spawnDemon(const Vector2f position)
 	health = MAX_DEMON_HEALTH;
     healthGauge.reset();
     recoilTimer = recoil;
+    resetStatus();
 	activate();
 }
 
@@ -160,6 +162,11 @@ FloatRect Demon::getTargetDetectionBox() const
 const float Demon::getRangeOfFire() const
 {
     return rangeOfFire;
+}
+
+void Demon::resetStatus()
+{
+    spellTimer = 0.0f;
 }
 
 void Demon::checkStatus()
@@ -221,15 +228,13 @@ void Demon::manageSpellEffect(const float deltaTime)
                 plagueTickTimer = 0.0f; //resset pour le prochain tick de 1 seconde
             }
         }
+    }
+    else
+    {
+        setColor(sf::Color::White);
+        plagueDamageMultiplier = 1.0f;
 
-        //domage initial
-        if (spellTimer <= 0.0f)
-        {
-            setColor(sf::Color::White);
-            plagueDamageMultiplier = 1.0f;
-
-            speed = DEFAULT_DEMON_SPEED + (SPEED_WAVE_MULTIPLIER * wave);
-        }
+        speed = DEFAULT_DEMON_SPEED + (SPEED_WAVE_MULTIPLIER * wave);
     }
 }
 

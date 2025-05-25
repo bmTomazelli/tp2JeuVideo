@@ -37,7 +37,7 @@ void Projectile::shoot(const Vector2f startingPosition, GameObject* actorToTarge
 {
     setPosition(startingPosition);
     target = actorToTarget;
-    //projectileSound.play();
+    projectileSound.play();
     activate();
 }
 

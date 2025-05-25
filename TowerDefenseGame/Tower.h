@@ -28,9 +28,11 @@ public:
     void notify(Subject* subject) override;
     void manageRecoil(const float deltaTime);
     void prepareShooting();
+    void resetStatus();
     
     Demon* findNearestTarget(const std::vector<Demon*>& demons);
     bool canShoot() const;
+    bool isDead() const;
 
 protected:
     void updateStatus(float deltaTime);
@@ -38,6 +40,7 @@ protected:
 
     bool active;
     int hp;
+    int totalHp;
     float range;
     HealthGauge healthGauge;
     float spellTimer;

@@ -54,6 +54,7 @@ void TowerEmplacement::notify(Subject* subject)
 {
 	if (tower && subject == tower)
 	{
-		releaseTower();
+        if (tower->isDead())
+		    releaseTower();
 	}
 }

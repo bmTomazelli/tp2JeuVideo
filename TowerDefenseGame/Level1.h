@@ -64,6 +64,6 @@ private:
 
 	const int LEVEL_1_MAX_NUMBER_OF_TOWERS = 8;
 
-	void initTowersEmplacements();
+	void initTowersEmplacements() override;
 };
 

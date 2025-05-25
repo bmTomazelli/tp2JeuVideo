@@ -39,6 +39,7 @@ public:
 	Waypoint* getWaypointToFollow() const;
     FloatRect getTargetDetectionBox() const;
     const float getRangeOfFire() const;
+    void resetStatus();
 
 private:
 	void checkStatus();

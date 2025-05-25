@@ -13,7 +13,8 @@ void ArcherTower::init()
     setOrigin(ARCHER_WIDTH / 2.f, ARCHER_HEIGHT / 2.f);
 
     range = TOWER_RANGE;
-    hp = DEFAULT_TOWER_HP;
+    totalHp = DEFAULT_TOWER_HP;
+    hp = totalHp;
 
     healthGauge.init();
     recoil = ARROW_RECOIL;
@@ -26,6 +27,7 @@ void ArcherTower::init()
 void ArcherTower::spawn(const sf::Vector2f& position)
 {
     setPosition(position);
+    resetStatus();
     hp = DEFAULT_TOWER_HP;
     healthGauge.reset();
     healthGauge.setPosition(Vector2f(getPosition().x - 30.f, getPosition().y - 75.f));
@@ -36,7 +38,7 @@ void ArcherTower::update(float deltaTime, std::vector<Demon*>& demons)
 {
     if (!isActive()) return;
 
-    updateStatus(deltaTime); // plague, boost etc.
+    updateStatus(deltaTime);
     updateSpell(deltaTime);
     manageRecoil(deltaTime);
 }
@@ -47,11 +49,11 @@ void ArcherTower::updateSpell(float deltaTime)
     {
         setColor(spellColor);
         spellTimer -= deltaTime;
-        if (spellTimer <= 0.f)
-        {
-            fireSpell = 1.f;
-            setColor(sf::Color::White);
-        }
+    }
+    else
+    {
+        fireSpell = 1.f;
+        setColor(sf::Color::White);
     }
 }
 

@@ -16,7 +16,9 @@ void MageTower::init()
     target = nullptr;
 
     range = TOWER_RANGE;
-    hp = DEFAULT_TOWER_HP;
+
+    totalHp = DEFAULT_TOWER_HP;
+    hp = totalHp;
 
     recoil = BLAST_RECOIL;
     recoilTimer = recoil;
@@ -33,6 +35,7 @@ void MageTower::init()
 void MageTower::spawn(const Vector2f& position)
 {
     setPosition(position);
+    resetStatus();
     hp = DEFAULT_TOWER_HP;
     healthGauge.reset();
     healthGauge.setPosition(Vector2f(getPosition().x - 30.f, getPosition().y - 75.f));
@@ -46,7 +49,7 @@ void MageTower::setupAnimation()
         animationFrames.emplace_back(IntRect(i * MAGE_FRAME_WIDTH, 0, MAGE_FRAME_WIDTH, MAGE_FRAME_HEIGHT));
     }
 
-    frameDuration = { 0.6f,0.2f,0.2f };
+    frameDuration = { 0.0f,0.2f,0.1f };
     setTextureRect(animationFrames[0]);
 }
 
@@ -72,7 +75,7 @@ void MageTower::updateSpell(float deltaTime)
         spellTimer -= deltaTime;
         if (spellTimer <= 0.f)
         {
-            fireSpell = 1.f;
+            fireSpell = 1.0f;
             setColor(sf::Color::White);
         }
     }
@@ -109,6 +112,7 @@ void MageTower::handleAnimation(float deltaTime)
             if (currentFrame == animationFrames.size() - 1)
             {
                 notifyAllObservers();
+                prepareShooting();
             }
 
             if (currentFrame >= animationFrames.size())

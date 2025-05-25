@@ -17,7 +17,7 @@ bool Level1::init()
 	map.setTexture(ContentPipeline::getInstance().getMapTexture(map1));
 
     initTowersEmplacements();
-    kingTower.spawn(Vector2f(1138, 600));
+    kingTower.spawn(Vector2f(1138, 564));
 
     Subject::addObserver(&kingTower);
 

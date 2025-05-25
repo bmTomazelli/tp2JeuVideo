@@ -55,6 +55,7 @@ protected:
 	bool unload() override;
 
 	virtual void initWaypoints() = 0;
+    virtual void initTowersEmplacements() = 0;
     
     void manageActiveAction();
 	void manageWaypoints();
@@ -80,8 +81,8 @@ protected:
 	};
 
 	// Demons
-	static const int MAX_DEMONS_AMOUNT = 50;
-	static const int MAX_DEMONS_ON_SCREEN = 20;
+	static const int MAX_DEMONS_AMOUNT = 10;
+	static const int MAX_DEMONS_ON_SCREEN = 10;
 	int demonsAmount = 0;
 
 	View view;

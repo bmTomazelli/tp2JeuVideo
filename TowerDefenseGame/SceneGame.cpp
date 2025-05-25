@@ -29,6 +29,7 @@ bool SceneGame::init()
 	if (!music.openFromFile(MUSIC_FILENAMES[rand() % 3])) return false;
 
 	initWaypoints();
+    initTowersEmplacements();
 
 	for (int i = 0; i < MAX_DEMONS_ON_SCREEN; i++)
 	{
@@ -114,6 +115,12 @@ void SceneGame::getInputs()
             {
                 inputs.togglePause = true;
             }
+
+            if (event.key.code == Keyboard::Enter)
+            {
+                if (isGameEnd)
+                    isRunning = false;
+            }
 		}
 
         if (event.type == Event::MouseButtonPressed)
@@ -196,8 +203,6 @@ void SceneGame::draw()
     {
         towerEmplacement->draw(renderWindow);
 	}
-
-    // Projectiles
 
     for (int i = 0; i < MAX_ARCHER_TOWERS; i++)
     {
@@ -504,7 +509,8 @@ Tower* SceneGame::findNearestTowerFromDemon(const Demon* demon, const std::vecto
     // Validation de s'il est proche s'un des emplacements de tours
     for (TowerEmplacement* towerEmplacement : towers)
     {
-        if (!towerEmplacement->isOccupied()) continue;
+        if (!towerEmplacement->isOccupied()) 
+            continue;
 
         float dx = towerEmplacement->getPosition().x - demon->getPosition().x;
         float dy = towerEmplacement->getPosition().y - demon->getPosition().y;

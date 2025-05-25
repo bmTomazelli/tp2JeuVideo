@@ -40,8 +40,6 @@ void Spell::activate(sf::Vector2f position)
     spellCircle.setPosition(position);
     spellCircle.setOrigin(spellCircle.getLocalBounds().width / 2.f, spellCircle.getLocalBounds().height / 2.f);
 
-
-
     GameObject::activate();
     notifyAllObservers();
 }
@@ -56,7 +54,6 @@ void Spell::update(float deltaTime)
         rotationSpeed += deltaTime / 15.0f;
         rune.rotate(rotationSpeed*(lifeTime*5));
         spellCircle.rotate(rotationSpeed);
-
 
         //scale-in dans l'init
         if (currentScale < scaleInTime) {

@@ -69,5 +69,7 @@ private:
 	};
 
 	const int MAX_NUMBER_OF_TOWERS = 9;
+
+    void initTowersEmplacements() override;
 };
 

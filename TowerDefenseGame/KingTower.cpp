@@ -1,5 +1,6 @@
 #include "KingTower.h"
 #include "ContentPipeline.h"
+#include "Projectile.h"
 
 KingTower::KingTower() {}
 
@@ -11,7 +12,8 @@ void KingTower::init()
     int h = getTexture()->getSize().y;
 
     setOrigin(w / 2.f, h / 2.f);
-    hp = KING_TOWER_HP;
+    totalHp = KING_TOWER_HP;
+    hp = totalHp;
     range = 0.0f;
 
     healthGauge.init();
@@ -44,5 +46,17 @@ void KingTower::draw(RenderWindow& renderWindow) const
     {
         GameObject::draw(renderWindow);
         healthGauge.draw(renderWindow);
+    }
+}
+
+void KingTower::notify(Subject* subject)
+{
+    if (typeid(*subject) == typeid(Projectile))
+    {
+        Projectile* projectile = static_cast<Projectile*>(subject);
+        if (projectile && projectile->getTarget() == this)
+        {
+            takeDamage(projectile->generateRandomDamage());
+        }
     }
 }
