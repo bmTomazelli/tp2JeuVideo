@@ -49,6 +49,7 @@ int Game::run()
 	int score = 0;
 	int highScore = highScoreData.score;
     int highWave = highScoreData.wave;
+    bool victory = false;
 
 	while (true)
 	{
@@ -81,7 +82,7 @@ int Game::run()
 				break;
 			}			
 		case Scene::scenes::END:
-			activeScene = new SceneEnd(renderWindow, event, score, highScore, currentWave, highWave);
+			activeScene = new SceneEnd(renderWindow, event, score, highScore, currentWave, highWave, victory);
 			break;
 		}
 		
@@ -96,11 +97,19 @@ int Game::run()
 			//C'est possible de les faire là.
 			SceneGame* tempScene = dynamic_cast<SceneGame*>(activeScene);
 
-            if (tempScene != nullptr) {
+			if (tempScene != nullptr)//Donc si le cast a réussi.
+			{
+        score = tempScene->getScore();
+        highScore = tempScene->getHighScore();
 
-                if (tempScene->isGameEnded()) {//verifie si le score actuel est plus haut que le score enregistré
-                    saveScore(score, currentWave);
-                }
+         if (tempScene->isGameEnded()) {//verifie si le score actuel est plus haut que le score enregistré
+            saveScore(score, currentWave);
+
+            if (currentWave == MAX_WAVES)
+            {
+                victory = tempScene->isVictory();
+                continue;
+        }
 
 				currentWave++;
 				if (typeid(*tempScene) == typeid(Level1))

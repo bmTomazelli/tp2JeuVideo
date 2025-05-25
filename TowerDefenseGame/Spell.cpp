@@ -50,8 +50,9 @@ void Spell::update(float deltaTime)
     if (lifeTime < duration)
     {
         rotationSpeed += deltaTime / 15.0f;
-        rune.rotate(rotationSpeed*(lifeTime*5));
-        spellCircle.rotate(deltaTime * 50.f);
+
+        rune.rotate(rotationSpeed*(lifeTime*5.0f));
+        spellCircle.rotate(deltaTime * 50.0f);
 
         //scale-in dans l'init
         if (currentScale < scaleInTime) {
@@ -61,7 +62,6 @@ void Spell::update(float deltaTime)
             spellCircle.setScale(scaleFactor * t, scaleFactor * t);
         }
     }
-
     else
     {
         deactivate();
